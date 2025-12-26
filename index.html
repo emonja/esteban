@@ -9,7 +9,7 @@
         :root {
             --bg: #f0f0ed; 
             --text: #121212;
-            --copper: #FFB300; /* Brightened Electric Copper */
+            --copper: #FFB300; 
             --pink: #ff007f;
             --patina: #40E0D0;
         }
@@ -20,70 +20,77 @@
             color: var(--text);
             font-family: 'Archivo Black', sans-serif;
             overflow-x: hidden;
+            touch-action: pan-y;
         }
 
-        /* Readouts */
+        /* Technical Readouts */
         .readout {
             position: fixed;
             font-family: 'Courier New', monospace; font-size: 8px;
             line-height: 1.6; letter-spacing: 2px; color: #bbb; z-index: 100;
-            text-transform: uppercase;
+            text-transform: uppercase; pointer-events: none;
         }
         .coords { top: 30px; left: 30px; }
         .visitor-info { top: 30px; right: 30px; text-align: right; opacity: 0.5; }
 
-        /* Ghost Controls - Smaller & Less Present */
+        /* Minimalist Ghost Toggle */
         .controls {
             position: fixed; bottom: 30px; right: 30px;
-            z-index: 100; display: flex; flex-direction: column;
-            align-items: flex-end; gap: 8px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(0,0,0,0.03);
-            backdrop-filter: blur(8px);
-            transition: all 0.3s ease;
+            z-index: 100;
         }
 
         .audio-btn {
-            background: none;
-            border: 1px solid rgba(0,0,0,0.1); 
-            color: var(--text);
-            padding: 6px 12px; cursor: pointer;
+            background: rgba(255, 255, 255, 0.2); 
+            border: 1px solid rgba(0,0,0,0.05); 
+            color: var(--text); padding: 8px 16px; cursor: pointer;
             text-transform: uppercase; font-size: 8px;
-            letter-spacing: 2px; font-weight: 900;
-            transition: 0.4s;
-            opacity: 0.6;
+            letter-spacing: 2px; font-weight: 900; opacity: 0.5;
+            backdrop-filter: blur(8px);
+            transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
         .audio-btn.active { 
             background: var(--copper); 
+            color: #fff; 
+            opacity: 1; 
             border-color: var(--copper);
-            color: #fff;
-            opacity: 1;
-            box-shadow: 0 4px 10px rgba(255, 179, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.2);
         }
         
-        input[type=range] { 
-            width: 60px; /* Reduced width */
-            accent-color: var(--copper); 
-            cursor: pointer;
-            opacity: 0.3;
-        }
-        input[type=range]:hover { opacity: 0.8; }
-
-        .now-playing { font-size: 7px; color: var(--copper); opacity: 0; font-weight: bold; transition: 0.5s; }
-        .now-playing.visible { opacity: 0.8; }
-
         /* Footer Email */
         .footer { position: fixed; bottom: 30px; left: 30px; z-index: 100; }
-        .email-link { font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--text); text-decoration: none; opacity: 0.4; font-weight: bold; transition: 0.3s; }
-        .email-link:hover { color: var(--pink); opacity: 1; }
+        .email-link { 
+            font-family: 'Courier New', monospace; font-size: 0.7rem; 
+            color: var(--text); text-decoration: none; opacity: 0.4; 
+            font-weight: bold; transition: 0.3s;
+        }
+        .email-link:hover { opacity: 1; color: var(--pink); }
 
-        /* Typography & Glitch Layers */
-        .viewport { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        h1 { font-size: clamp(2.5rem, 15vw, 10rem); text-transform: uppercase; letter-spacing: -0.06em; line-height: 0.75; margin: 0; position: relative; z-index: 5; }
-        .slice { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: clamp(2.5rem, 15vw, 10rem); text-transform: uppercase; letter-spacing: -0.06em; line-height: 0.75; opacity: 0; pointer-events: none; }
-        .glitch-line { position: absolute; height: 1px; width: 100vw; z-index: 6; opacity: 0; pointer-events: none; }
+        /* Scene Setup */
+        .viewport {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+
+        .glitch-wrapper { position: relative; text-align: center; }
+
+        h1 {
+            font-size: clamp(2.5rem, 15vw, 10rem);
+            text-transform: uppercase; letter-spacing: -0.06em;
+            line-height: 0.75; margin: 0; position: relative; z-index: 5;
+        }
+
+        /* Color Separation Layers */
+        .color-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            font-size: clamp(2.5rem, 15vw, 10rem);
+            text-transform: uppercase; letter-spacing: -0.06em;
+            line-height: 0.75; mix-blend-mode: multiply;
+            opacity: 0; pointer-events: none;
+            transition: transform 0.08s linear;
+        }
+
         .status { margin-top: 60px; font-size: 0.6rem; letter-spacing: 1em; text-transform: uppercase; color: #ccc; }
         .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.04; pointer-events: none; z-index: 20; filter: contrast(120%); }
     </style>
@@ -104,23 +111,22 @@
         STATUS: OBSERVING_YOU
     </div>
 
-    <audio id="bgAudio" loop preload="auto">
-        <source src="sounds/something.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgAudio" loop preload="auto"><source src="sounds/something.mp3" type="audio/mpeg"></audio>
 
     <div class="footer">
         <a href="mailto:esteban@delamonja.com" class="email-link">esteban@delamonja.com</a>
     </div>
 
-    <div class="controls" id="uiBox">
-        <div id="playingLabel" class="now-playing">SIGNAL ACTIVE</div>
+    <div class="controls">
         <button id="audioToggle" class="audio-btn">Muted</button>
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
     </div>
 
     <div class="viewport">
         <div class="glitch-wrapper" id="scene">
             <h1 id="target">Esteban<br>De la Monja</h1>
+            <div class="color-layer" id="layerPink" style="color: var(--pink);">Esteban<br>De la Monja</div>
+            <div class="color-layer" id="layerCopper" style="color: var(--copper);">Esteban<br>De la Monja</div>
+            <div class="color-layer" id="layerPatina" style="color: var(--patina);">Esteban<br>De la Monja</div>
         </div>
         <div class="status">Currently Curating</div>
     </div>
@@ -130,22 +136,17 @@
         const target = document.getElementById('target');
         const audio = document.getElementById('bgAudio');
         const audioBtn = document.getElementById('audioToggle');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const uiBox = document.getElementById('uiBox');
         const coordLabel = document.getElementById('coords');
         const visitorLabel = document.getElementById('visitor');
+
+        const layerP = document.getElementById('layerPink');
+        const layerC = document.getElementById('layerCopper');
+        const layerT = document.getElementById('layerPatina');
         
-        let userLocation = "20.1° N, 103.7° W"; 
         let lastUpdated = "2025.12.26";
+        let userLocation = "20.1° N, 103.7° W";
 
         async function fetchSystemData() {
-            const ua = navigator.userAgent;
-            let browser = "Other";
-            if (ua.includes("Firefox")) browser = "Firefox";
-            else if (ua.includes("Chrome")) browser = "Chrome";
-            else if (ua.includes("Safari")) browser = "Safari";
-            visitorLabel.innerHTML = `AGENT: ${browser}<br>OS: ${navigator.platform}<br>STATUS: OBSERVING_YOU`;
-
             const githubUser = 'emonja'; 
             const repoName = 'esteban'; 
             try {
@@ -155,13 +156,9 @@
                     lastUpdated = data.updated_at.split('T')[0].replace(/-/g, '.');
                 }
             } catch (e) { lastUpdated = "OFFLINE"; }
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    userLocation = `${pos.coords.latitude.toFixed(2)}° N, ${pos.coords.longitude.toFixed(2)}° W`;
-                    updateDisplay(window.scrollY);
-                });
-            }
+            
+            const ua = navigator.userAgent;
+            visitorLabel.innerHTML = `AGENT: ${ua.includes("Chrome") ? "Chrome" : "Safari"}<br>OS: ${navigator.platform}<br>STATUS: OBSERVING_YOU`;
             updateDisplay(0);
         }
 
@@ -170,54 +167,48 @@
             coordLabel.innerHTML = `LOC: ${userLocation}<br>REF: ${(scrollVal/1000).toFixed(2)} / ${hex}<br>LST_UPD: ${lastUpdated}`;
         }
 
-        window.onload = () => {
-            fetchSystemData();
-            const colors = ['var(--copper)', 'var(--pink)', 'var(--patina)'];
-            for (let i = 0; i < 20; i++) {
-                const slice = document.createElement('div');
-                slice.className = 'slice';
-                slice.innerHTML = "Esteban<br>De la Monja";
-                slice.style.color = colors[Math.floor(Math.random() * colors.length)];
-                scene.appendChild(slice);
-                const line = document.createElement('div');
-                line.className = 'glitch-line';
-                line.style.background = colors[Math.floor(Math.random() * colors.length)];
-                scene.appendChild(line);
-            }
+        // Horizontal Glitch Interaction
+        const handleXGlitch = (inputX) => {
+            const centerX = window.innerWidth / 2;
+            const offset = (inputX - centerX) / 12;
+
+            layerP.style.opacity = Math.abs(offset/15);
+            layerC.style.opacity = Math.abs(offset/15);
+            layerT.style.opacity = Math.abs(offset/15);
+
+            layerP.style.transform = `translateX(${offset * 1.8}px) skewX(${offset}deg)`;
+            layerC.style.transform = `translateX(${offset * -1.4}px) skewX(${offset * -1}deg)`;
+            layerT.style.transform = `translateX(${offset * 0.4}px) translateY(${Math.abs(offset)}px)`;
         };
 
+        window.addEventListener('mousemove', (e) => handleXGlitch(e.clientX));
+        window.addEventListener('touchmove', (e) => handleXGlitch(e.touches[0].clientX));
+
+        // Vertical Scroll Interaction
         window.addEventListener('scroll', () => {
             const scroll = window.scrollY;
-            const slices = document.querySelectorAll('.slice');
             updateDisplay(scroll);
             if (scroll > 10) {
-                slices.forEach((slice, i) => {
-                    const jitter = (Math.random() - 0.5) * (scroll * 0.4);
-                    slice.style.opacity = (Math.random() * 0.6).toString();
-                    slice.style.transform = `translate(${jitter}px, ${Math.sin(scroll/10)*5}px)`;
-                    slice.style.clipPath = `inset(${Math.random()*100}% 0 ${Math.random()*100}% 0)`;
-                });
+                target.style.transform = `translateY(${scroll * 0.12}px) skewX(${Math.sin(scroll/15)*4}deg)`;
             } else {
-                slices.forEach(s => s.style.opacity = "0");
+                target.style.transform = 'none';
             }
         });
 
+        window.onload = fetchSystemData;
+
+        // Simplified Audio Toggle
         audioBtn.addEventListener('click', () => {
             if (audio.paused) {
-                audio.play().then(() => {
-                    audioBtn.innerText = "Active";
-                    audioBtn.classList.add('active');
-                    document.getElementById('playingLabel').classList.add('visible');
-                });
+                audio.play(); 
+                audioBtn.innerText = "Active"; 
+                audioBtn.classList.add('active');
             } else {
-                audio.pause();
-                audioBtn.innerText = "Muted";
+                audio.pause(); 
+                audioBtn.innerText = "Muted"; 
                 audioBtn.classList.remove('active');
-                document.getElementById('playingLabel').classList.remove('visible');
             }
         });
-
-        volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value; });
     </script>
 </body>
 </html>
