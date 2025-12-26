@@ -23,7 +23,6 @@
             touch-action: pan-y;
         }
 
-        /* Technical Readouts */
         .readout {
             position: fixed;
             font-family: 'Courier New', monospace; font-size: 8px;
@@ -33,12 +32,7 @@
         .coords { top: 30px; left: 30px; }
         .visitor-info { top: 30px; right: 30px; text-align: right; opacity: 0.5; }
 
-        /* Minimalist Ghost Toggle */
-        .controls {
-            position: fixed; bottom: 30px; right: 30px;
-            z-index: 100;
-        }
-
+        .controls { position: fixed; bottom: 30px; right: 30px; z-index: 100; }
         .audio-btn {
             background: rgba(255, 255, 255, 0.2); 
             border: 1px solid rgba(0,0,0,0.05); 
@@ -48,29 +42,16 @@
             backdrop-filter: blur(8px);
             transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
-
-        .audio-btn.active { 
-            background: var(--copper); 
-            color: #fff; 
-            opacity: 1; 
-            border-color: var(--copper);
-            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.2);
-        }
+        .audio-btn.active { background: var(--copper); color: #fff; opacity: 1; border-color: var(--copper); }
         
-        /* Footer Email */
         .footer { position: fixed; bottom: 30px; left: 30px; z-index: 100; }
-        .email-link { 
-            font-family: 'Courier New', monospace; font-size: 0.7rem; 
-            color: var(--text); text-decoration: none; opacity: 0.4; 
-            font-weight: bold; transition: 0.3s;
-        }
-        .email-link:hover { opacity: 1; color: var(--pink); }
+        .email-link { font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--text); text-decoration: none; opacity: 0.4; font-weight: bold; }
 
-        /* Scene Setup */
         .viewport {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         .glitch-wrapper { position: relative; text-align: center; }
@@ -81,14 +62,13 @@
             line-height: 0.75; margin: 0; position: relative; z-index: 5;
         }
 
-        /* Color Separation Layers */
         .color-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             font-size: clamp(2.5rem, 15vw, 10rem);
             text-transform: uppercase; letter-spacing: -0.06em;
             line-height: 0.75; mix-blend-mode: multiply;
             opacity: 0; pointer-events: none;
-            transition: transform 0.08s linear;
+            transition: transform 0.1s linear;
         }
 
         .status { margin-top: 60px; font-size: 0.6rem; letter-spacing: 1em; text-transform: uppercase; color: #ccc; }
@@ -98,18 +78,8 @@
 <body>
 
     <div class="noise"></div>
-    
-    <div class="readout coords" id="coords">
-        LOC: 20.1° N, 103.7° W<br>
-        REF: 0.00 / 000<br>
-        LST_UPD: 2025.12.26
-    </div>
-
-    <div class="readout visitor-info" id="visitor">
-        AGENT: ANALYZING...<br>
-        OS: UNKNOWN<br>
-        STATUS: OBSERVING_YOU
-    </div>
+    <div class="readout coords" id="coords">REF: 0.00 / 000</div>
+    <div class="readout visitor-info" id="visitor">ANALYZING...</div>
 
     <audio id="bgAudio" loop preload="auto"><source src="sounds/something.mp3" type="audio/mpeg"></audio>
 
@@ -117,65 +87,54 @@
         <a href="mailto:esteban@delamonja.com" class="email-link">esteban@delamonja.com</a>
     </div>
 
-    <div class="controls">
-        <button id="audioToggle" class="audio-btn">Muted</button>
-    </div>
+    <div class="controls"><button id="audioToggle" class="audio-btn">Muted</button></div>
 
-    <div class="viewport">
+    <div class="viewport" id="viewport">
         <div class="glitch-wrapper" id="scene">
             <h1 id="target">Esteban<br>De la Monja</h1>
             <div class="color-layer" id="layerPink" style="color: var(--pink);">Esteban<br>De la Monja</div>
             <div class="color-layer" id="layerCopper" style="color: var(--copper);">Esteban<br>De la Monja</div>
             <div class="color-layer" id="layerPatina" style="color: var(--patina);">Esteban<br>De la Monja</div>
         </div>
-        <div class="status">Currently Curating</div>
+        <div class="status" id="status">Currently Curating</div>
     </div>
 
     <script>
-        const scene = document.getElementById('scene');
+        const viewport = document.getElementById('viewport');
         const target = document.getElementById('target');
         const audio = document.getElementById('bgAudio');
         const audioBtn = document.getElementById('audioToggle');
-        const coordLabel = document.getElementById('coords');
-        const visitorLabel = document.getElementById('visitor');
-
         const layerP = document.getElementById('layerPink');
         const layerC = document.getElementById('layerCopper');
         const layerT = document.getElementById('layerPatina');
-        
-        let lastUpdated = "2025.12.26";
-        let userLocation = "20.1° N, 103.7° W";
 
-        async function fetchSystemData() {
-            const githubUser = 'emonja'; 
-            const repoName = 'esteban'; 
-            try {
-                const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    lastUpdated = data.updated_at.split('T')[0].replace(/-/g, '.');
-                }
-            } catch (e) { lastUpdated = "OFFLINE"; }
+        // RANDOMIZER ENGINE
+        window.onload = () => {
+            // 1. Random Alignment
+            const aligns = ['flex-start', 'center', 'flex-end'];
+            const padding = ['5vw', '0', '5vw'];
+            const randomIndex = Math.floor(Math.random() * aligns.length);
             
-            const ua = navigator.userAgent;
-            visitorLabel.innerHTML = `AGENT: ${ua.includes("Chrome") ? "Chrome" : "Safari"}<br>OS: ${navigator.platform}<br>STATUS: OBSERVING_YOU`;
-            updateDisplay(0);
-        }
+            viewport.style.alignItems = aligns[randomIndex];
+            viewport.style.paddingLeft = padding[randomIndex];
+            viewport.style.paddingRight = padding[randomIndex];
+            viewport.style.textAlign = randomIndex === 0 ? 'left' : randomIndex === 2 ? 'right' : 'center';
 
-        function updateDisplay(scrollVal) {
-            const hex = Math.floor(scrollVal).toString(16).toUpperCase().padStart(3, '0');
-            coordLabel.innerHTML = `LOC: ${userLocation}<br>REF: ${(scrollVal/1000).toFixed(2)} / ${hex}<br>LST_UPD: ${lastUpdated}`;
-        }
+            // 2. Random Scale/Tilt
+            const randomSkew = (Math.random() - 0.5) * 4;
+            target.style.transform = `skewY(${randomSkew}deg)`;
 
-        // Horizontal Glitch Interaction
+            // 3. Visitor Info Initialization
+            document.getElementById('visitor').innerHTML = `AGENT: ${navigator.userAgent.includes("Chrome") ? "CHROME" : "MOBILE_WEB"}<br>STATUS: OBSERVING_YOU`;
+        };
+
+        // INTERACTION: X-AXIS
         const handleXGlitch = (inputX) => {
             const centerX = window.innerWidth / 2;
-            const offset = (inputX - centerX) / 12;
-
+            const offset = (inputX - centerX) / 10;
             layerP.style.opacity = Math.abs(offset/15);
             layerC.style.opacity = Math.abs(offset/15);
             layerT.style.opacity = Math.abs(offset/15);
-
             layerP.style.transform = `translateX(${offset * 1.8}px) skewX(${offset}deg)`;
             layerC.style.transform = `translateX(${offset * -1.4}px) skewX(${offset * -1}deg)`;
             layerT.style.transform = `translateX(${offset * 0.4}px) translateY(${Math.abs(offset)}px)`;
@@ -184,29 +143,23 @@
         window.addEventListener('mousemove', (e) => handleXGlitch(e.clientX));
         window.addEventListener('touchmove', (e) => handleXGlitch(e.touches[0].clientX));
 
-        // Vertical Scroll Interaction
+        // INTERACTION: Y-AXIS (SCROLL)
         window.addEventListener('scroll', () => {
             const scroll = window.scrollY;
-            updateDisplay(scroll);
+            const hex = Math.floor(scroll).toString(16).toUpperCase().padStart(3, '0');
+            document.getElementById('coords').innerHTML = `LOC: TAPALPA_MX<br>REF: ${(scroll/1000).toFixed(2)} / ${hex}`;
+            
             if (scroll > 10) {
-                target.style.transform = `translateY(${scroll * 0.12}px) skewX(${Math.sin(scroll/15)*4}deg)`;
-            } else {
-                target.style.transform = 'none';
+                target.style.opacity = (1 - scroll/1500).toString();
+                target.style.letterSpacing = `${-0.06 + (scroll/10000)}em`;
             }
         });
 
-        window.onload = fetchSystemData;
-
-        // Simplified Audio Toggle
         audioBtn.addEventListener('click', () => {
             if (audio.paused) {
-                audio.play(); 
-                audioBtn.innerText = "Active"; 
-                audioBtn.classList.add('active');
+                audio.play(); audioBtn.innerText = "Active"; audioBtn.classList.add('active');
             } else {
-                audio.pause(); 
-                audioBtn.innerText = "Muted"; 
-                audioBtn.classList.remove('active');
+                audio.pause(); audioBtn.innerText = "Muted"; audioBtn.classList.remove('active');
             }
         });
     </script>
