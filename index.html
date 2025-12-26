@@ -9,7 +9,7 @@
         :root {
             --bg: #f0f0ed; 
             --text: #121212;
-            --copper: #DA9107; 
+            --copper: #FFB300; /* Brightened Electric Copper */
             --pink: #ff007f;
             --patina: #40E0D0;
         }
@@ -25,51 +25,66 @@
         /* Readouts */
         .readout {
             position: fixed;
-            font-family: 'Courier New', monospace; font-size: 9px;
-            line-height: 1.6; letter-spacing: 2px; color: #aaa; z-index: 100;
+            font-family: 'Courier New', monospace; font-size: 8px;
+            line-height: 1.6; letter-spacing: 2px; color: #bbb; z-index: 100;
             text-transform: uppercase;
         }
-        .coords { top: 40px; left: 40px; }
-        .visitor-info { top: 40px; right: 40px; text-align: right; opacity: 0.6; }
+        .coords { top: 30px; left: 30px; }
+        .visitor-info { top: 30px; right: 30px; text-align: right; opacity: 0.5; }
 
-        /* Controls */
+        /* Ghost Controls - Smaller & Less Present */
         .controls {
-            position: fixed; bottom: 40px; right: 40px;
+            position: fixed; bottom: 30px; right: 30px;
             z-index: 100; display: flex; flex-direction: column;
-            align-items: flex-end; gap: 12px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.4);
-            border: 1px solid rgba(0,0,0,0.05);
-            backdrop-filter: blur(15px);
+            align-items: flex-end; gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0,0,0,0.03);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
         }
 
         .audio-btn {
-            background: var(--text);
-            border: none; color: #fff;
-            padding: 10px 20px; cursor: pointer;
-            text-transform: uppercase; font-size: 10px;
-            letter-spacing: 3px; font-weight: 900;
-            transition: 0.3s;
+            background: none;
+            border: 1px solid rgba(0,0,0,0.1); 
+            color: var(--text);
+            padding: 6px 12px; cursor: pointer;
+            text-transform: uppercase; font-size: 8px;
+            letter-spacing: 2px; font-weight: 900;
+            transition: 0.4s;
+            opacity: 0.6;
         }
 
-        .audio-btn.active { background: var(--copper); }
+        .audio-btn.active { 
+            background: var(--copper); 
+            border-color: var(--copper);
+            color: #fff;
+            opacity: 1;
+            box-shadow: 0 4px 10px rgba(255, 179, 0, 0.3);
+        }
         
-        input[type=range] { width: 100px; accent-color: var(--copper); cursor: pointer; }
+        input[type=range] { 
+            width: 60px; /* Reduced width */
+            accent-color: var(--copper); 
+            cursor: pointer;
+            opacity: 0.3;
+        }
+        input[type=range]:hover { opacity: 0.8; }
 
-        .now-playing { font-size: 9px; letter-spacing: 2px; color: var(--copper); opacity: 0; font-weight: bold; }
-        .now-playing.visible { opacity: 1; }
+        .now-playing { font-size: 7px; color: var(--copper); opacity: 0; font-weight: bold; transition: 0.5s; }
+        .now-playing.visible { opacity: 0.8; }
 
         /* Footer Email */
-        .footer { position: fixed; bottom: 40px; left: 40px; z-index: 100; }
-        .email-link { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--text); text-decoration: none; opacity: 0.6; font-weight: bold; transition: 0.3s; }
+        .footer { position: fixed; bottom: 30px; left: 30px; z-index: 100; }
+        .email-link { font-family: 'Courier New', monospace; font-size: 0.7rem; color: var(--text); text-decoration: none; opacity: 0.4; font-weight: bold; transition: 0.3s; }
         .email-link:hover { color: var(--pink); opacity: 1; }
 
-        /* Visuals */
+        /* Typography & Glitch Layers */
         .viewport { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        h1 { font-size: clamp(3rem, 15vw, 10rem); text-transform: uppercase; letter-spacing: -0.06em; line-height: 0.75; margin: 0; position: relative; z-index: 5; }
-        .slice { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: clamp(3rem, 15vw, 10rem); text-transform: uppercase; letter-spacing: -0.06em; line-height: 0.75; opacity: 0; pointer-events: none; }
+        h1 { font-size: clamp(2.5rem, 15vw, 10rem); text-transform: uppercase; letter-spacing: -0.06em; line-height: 0.75; margin: 0; position: relative; z-index: 5; }
+        .slice { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: clamp(2.5rem, 15vw, 10rem); text-transform: uppercase; letter-spacing: -0.06em; line-height: 0.75; opacity: 0; pointer-events: none; }
         .glitch-line { position: absolute; height: 1px; width: 100vw; z-index: 6; opacity: 0; pointer-events: none; }
-        .status { margin-top: 80px; font-size: 0.7rem; letter-spacing: 1.2em; text-transform: uppercase; color: #bbb; }
+        .status { margin-top: 60px; font-size: 0.6rem; letter-spacing: 1em; text-transform: uppercase; color: #ccc; }
         .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.04; pointer-events: none; z-index: 20; filter: contrast(120%); }
     </style>
 </head>
@@ -90,7 +105,7 @@
     </div>
 
     <audio id="bgAudio" loop preload="auto">
-        <source src="./sounds/something.mp3" type="audio/mpeg">
+        <source src="sounds/something.mp3" type="audio/mpeg">
     </audio>
 
     <div class="footer">
@@ -98,7 +113,7 @@
     </div>
 
     <div class="controls" id="uiBox">
-        <div id="playingLabel" class="now-playing">REACTIVE SIGNAL</div>
+        <div id="playingLabel" class="now-playing">SIGNAL ACTIVE</div>
         <button id="audioToggle" class="audio-btn">Muted</button>
         <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
     </div>
@@ -124,7 +139,6 @@
         let lastUpdated = "2025.12.26";
 
         async function fetchSystemData() {
-            // Visitor Data
             const ua = navigator.userAgent;
             let browser = "Other";
             if (ua.includes("Firefox")) browser = "Firefox";
@@ -132,7 +146,6 @@
             else if (ua.includes("Safari")) browser = "Safari";
             visitorLabel.innerHTML = `AGENT: ${browser}<br>OS: ${navigator.platform}<br>STATUS: OBSERVING_YOU`;
 
-            // Github Data - Corrected based on your screenshot
             const githubUser = 'emonja'; 
             const repoName = 'esteban'; 
             try {
@@ -141,7 +154,7 @@
                     const data = await res.json();
                     lastUpdated = data.updated_at.split('T')[0].replace(/-/g, '.');
                 }
-            } catch (e) { lastUpdated = "DATA_OFFLINE"; }
+            } catch (e) { lastUpdated = "OFFLINE"; }
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((pos) => {
@@ -156,16 +169,6 @@
             const hex = Math.floor(scrollVal).toString(16).toUpperCase().padStart(3, '0');
             coordLabel.innerHTML = `LOC: ${userLocation}<br>REF: ${(scrollVal/1000).toFixed(2)} / ${hex}<br>LST_UPD: ${lastUpdated}`;
         }
-
-        const triggerUIGlitch = () => {
-            const colors = ['var(--pink)', 'var(--copper)', 'var(--patina)'];
-            uiBox.style.transform = `translate(${(Math.random()-0.5)*15}px, ${(Math.random()-0.5)*15}px)`;
-            uiBox.style.borderColor = colors[Math.floor(Math.random()*3)];
-            setTimeout(() => {
-                uiBox.style.transform = 'none';
-                uiBox.style.borderColor = 'rgba(0,0,0,0.05)';
-            }, 80);
-        };
 
         window.onload = () => {
             fetchSystemData();
@@ -189,7 +192,7 @@
             updateDisplay(scroll);
             if (scroll > 10) {
                 slices.forEach((slice, i) => {
-                    const jitter = (Math.random() - 0.5) * (scroll * 0.5);
+                    const jitter = (Math.random() - 0.5) * (scroll * 0.4);
                     slice.style.opacity = (Math.random() * 0.6).toString();
                     slice.style.transform = `translate(${jitter}px, ${Math.sin(scroll/10)*5}px)`;
                     slice.style.clipPath = `inset(${Math.random()*100}% 0 ${Math.random()*100}% 0)`;
@@ -205,23 +208,16 @@
                     audioBtn.innerText = "Active";
                     audioBtn.classList.add('active');
                     document.getElementById('playingLabel').classList.add('visible');
-                    triggerUIGlitch();
-                }).catch(e => {
-                    alert("Sound file not found. Ensure sounds/something.mp3 exists in GitHub.");
                 });
             } else {
                 audio.pause();
                 audioBtn.innerText = "Muted";
                 audioBtn.classList.remove('active');
                 document.getElementById('playingLabel').classList.remove('visible');
-                triggerUIGlitch();
             }
         });
 
-        volumeSlider.addEventListener('input', (e) => {
-            audio.volume = e.target.value;
-            if (Math.random() > 0.8) triggerUIGlitch();
-        });
+        volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value; });
     </script>
 </body>
 </html>
