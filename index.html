@@ -32,7 +32,7 @@
         .coords { top: 40px; left: 40px; }
         .visitor-info { top: 40px; right: 40px; text-align: right; opacity: 0.6; }
 
-        /* Glass Controls */
+        /* Controls */
         .controls {
             position: fixed; bottom: 40px; right: 40px;
             z-index: 100; display: flex; flex-direction: column;
@@ -41,7 +41,6 @@
             background: rgba(255, 255, 255, 0.4);
             border: 1px solid rgba(0,0,0,0.05);
             backdrop-filter: blur(15px);
-            transition: transform 0.1s ease;
         }
 
         .audio-btn {
@@ -55,61 +54,23 @@
 
         .audio-btn.active { background: var(--copper); }
         
-        input[type=range] {
-            width: 100px; accent-color: var(--copper); cursor: pointer;
-        }
+        input[type=range] { width: 100px; accent-color: var(--copper); cursor: pointer; }
 
-        .now-playing {
-            font-size: 9px; letter-spacing: 2px;
-            color: var(--copper); opacity: 0; font-weight: bold;
-        }
+        .now-playing { font-size: 9px; letter-spacing: 2px; color: var(--copper); opacity: 0; font-weight: bold; }
         .now-playing.visible { opacity: 1; }
 
         /* Footer Email */
         .footer { position: fixed; bottom: 40px; left: 40px; z-index: 100; }
-        .email-link {
-            font-family: 'Courier New', monospace; font-size: 0.8rem;
-            color: var(--text); text-decoration: none; opacity: 0.6;
-            transition: 0.3s; font-weight: bold;
-        }
+        .email-link { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--text); text-decoration: none; opacity: 0.6; font-weight: bold; transition: 0.3s; }
         .email-link:hover { color: var(--pink); opacity: 1; }
 
-        /* Typography & Glitch Layers */
-        .viewport {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-        }
-
-        h1 {
-            font-size: clamp(3rem, 15vw, 10rem);
-            text-transform: uppercase; letter-spacing: -0.06em;
-            line-height: 0.75; margin: 0; position: relative; z-index: 5;
-        }
-
-        .slice {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            font-size: clamp(3rem, 15vw, 10rem);
-            text-transform: uppercase; letter-spacing: -0.06em;
-            line-height: 0.75; opacity: 0; pointer-events: none;
-        }
-
-        .glitch-line {
-            position: absolute; height: 1px; width: 100vw;
-            z-index: 6; opacity: 0; pointer-events: none;
-        }
-
-        .status {
-            margin-top: 80px; font-size: 0.7rem;
-            letter-spacing: 1.2em; text-transform: uppercase;
-            color: #bbb;
-        }
-
-        .noise {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.04; pointer-events: none; z-index: 20; filter: contrast(120%);
-        }
+        /* Visuals */
+        .viewport { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        h1 { font-size: clamp(3rem, 15vw, 10rem); text-transform: uppercase; letter-spacing: -0.06em; line-height: 0.75; margin: 0; position: relative; z-index: 5; }
+        .slice { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: clamp(3rem, 15vw, 10rem); text-transform: uppercase; letter-spacing: -0.06em; line-height: 0.75; opacity: 0; pointer-events: none; }
+        .glitch-line { position: absolute; height: 1px; width: 100vw; z-index: 6; opacity: 0; pointer-events: none; }
+        .status { margin-top: 80px; font-size: 0.7rem; letter-spacing: 1.2em; text-transform: uppercase; color: #bbb; }
+        .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://grainy-gradients.vercel.app/noise.svg'); opacity: 0.04; pointer-events: none; z-index: 20; filter: contrast(120%); }
     </style>
 </head>
 <body>
@@ -117,21 +78,23 @@
     <div class="noise"></div>
     
     <div class="readout coords" id="coords">
-        LOC: FETCHING...<br>
+        LOC: 20.1° N, 103.7° W<br>
         REF: 0.00 / 000<br>
-        LST_UPD: PENDING
+        LST_UPD: 2025.12.26
     </div>
 
     <div class="readout visitor-info" id="visitor">
         AGENT: ANALYZING...<br>
-        PLATFORM: UNKNOWN<br>
-        STATUS: OBSERVING
+        OS: UNKNOWN<br>
+        STATUS: OBSERVING_YOU
     </div>
 
-    <audio id="bgAudio" loop><source src="sounds/something.mp3" type="audio/mpeg"></audio>
+    <audio id="bgAudio" loop preload="auto">
+        <source src="sounds/something.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="footer">
-        <a href="mailto:esteban@delamonja.com" class="email-link" id="email">esteban@delamonja.com</a>
+        <a href="mailto:esteban@delamonja.com" class="email-link">esteban@delamonja.com</a>
     </div>
 
     <div class="controls" id="uiBox">
@@ -160,32 +123,26 @@
         let userLocation = "20.1° N, 103.7° W"; 
         let lastUpdated = "2025.12.26";
 
-        // 1. DATA FETCHING
         async function fetchSystemData() {
-            // Visitor Data (The "I see you" joke)
+            // Visitor Data
             const ua = navigator.userAgent;
             let browser = "Other";
             if (ua.includes("Firefox")) browser = "Firefox";
             else if (ua.includes("Chrome")) browser = "Chrome";
             else if (ua.includes("Safari")) browser = "Safari";
+            visitorLabel.innerHTML = `AGENT: ${browser}<br>OS: ${navigator.platform}<br>STATUS: OBSERVING_YOU`;
 
-            const platform = navigator.platform || "Web";
-            visitorLabel.innerHTML = `
-                AGENT: ${browser}<br>
-                OS: ${platform}<br>
-                STATUS: OBSERVING_YOU
-            `;
-
-            // Github - Replace YOUR_USERNAME and YOUR_REPO
-            const githubUser = 'EstebanDeLaMonja'; 
-            const repoName = 'esteban-portfolio'; 
+            // Github Data - Corrected based on your screenshot
+            const githubUser = 'emonja'; 
+            const repoName = 'esteban'; 
             try {
                 const res = await fetch(`https://api.github.com/repos/${githubUser}/${repoName}`);
-                const data = await res.json();
-                if(data.updated_at) lastUpdated = data.updated_at.split('T')[0].replace(/-/g, '.');
-            } catch (e) { console.log("Git offline"); }
+                if (res.ok) {
+                    const data = await res.json();
+                    lastUpdated = data.updated_at.split('T')[0].replace(/-/g, '.');
+                }
+            } catch (e) { lastUpdated = "DATA_OFFLINE"; }
 
-            // GeoLocation
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((pos) => {
                     userLocation = `${pos.coords.latitude.toFixed(2)}° N, ${pos.coords.longitude.toFixed(2)}° W`;
@@ -197,11 +154,7 @@
 
         function updateDisplay(scrollVal) {
             const hex = Math.floor(scrollVal).toString(16).toUpperCase().padStart(3, '0');
-            coordLabel.innerHTML = `
-                LOC: ${userLocation}<br>
-                REF: ${(scrollVal/1000).toFixed(2)} / ${hex}<br>
-                LST_UPD: ${lastUpdated}
-            `;
+            coordLabel.innerHTML = `LOC: ${userLocation}<br>REF: ${(scrollVal/1000).toFixed(2)} / ${hex}<br>LST_UPD: ${lastUpdated}`;
         }
 
         const triggerUIGlitch = () => {
@@ -247,15 +200,21 @@
         });
 
         audioBtn.addEventListener('click', () => {
-            triggerUIGlitch();
             if (audio.paused) {
-                audio.play(); audioBtn.innerText = "Active";
-                audioBtn.classList.add('active');
-                document.getElementById('playingLabel').classList.add('visible');
+                audio.play().then(() => {
+                    audioBtn.innerText = "Active";
+                    audioBtn.classList.add('active');
+                    document.getElementById('playingLabel').classList.add('visible');
+                    triggerUIGlitch();
+                }).catch(e => {
+                    alert("Sound file not found. Ensure sounds/something.mp3 exists in GitHub.");
+                });
             } else {
-                audio.pause(); audioBtn.innerText = "Muted";
+                audio.pause();
+                audioBtn.innerText = "Muted";
                 audioBtn.classList.remove('active');
                 document.getElementById('playingLabel').classList.remove('visible');
+                triggerUIGlitch();
             }
         });
 
