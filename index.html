@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esteban De la Monja</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --text: #ffffff;
+            --copper: #b87333;
+            --pink: #ff007f;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 300vh;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Archivo Black', sans-serif;
+            overflow-x: hidden;
+            transition: background-color 1s ease;
+        }
+
+        /* Fixed UI */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: rgba(255,255,255,0.02);
+            padding: 18px;
+            border-radius: 2px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .audio-btn {
+            background: none;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 8px 15px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+
+        .audio-btn.active {
+            border-color: var(--pink);
+            color: var(--pink);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.1);
+        }
+
+        input[type=range] {
+            width: 80px;
+            accent-color: var(--copper);
+            cursor: pointer;
+            opacity: 0.6;
+        }
+
+        .now-playing {
+            font-size: 9px;
+            letter-spacing: 1px;
+            color: var(--copper);
+            opacity: 0;
+            transition: 0.5s;
+            font-weight: bold;
+        }
+
+        .now-playing.visible { opacity: 1; }
+
+        /* Email Link */
+        .footer {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 100;
+        }
+
+        .email-link {
+            font-family: system-ui, sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+            opacity: 0.4;
+            transition: 0.4s;
+            display: block;
+        }
+
+        .email-link:hover {
+            opacity: 1;
+            color: var(--copper);
+            transform: translateX(5px);
+        }
+
+        /* Main Viewport */
+        .viewport {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+
+        .glitch-wrapper { 
+            position: relative; 
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 12vw, 8rem);
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+            line-height: 0.85;
+            margin: 0;
+            position: relative;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .slice {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            font-size: clamp(2.5rem, 12vw, 8rem);
+            text-transform: uppercase; letter-spacing: -0.04em;
+            line-height: 0.85;
+            opacity: 0; pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .glitch-line {
+            position: absolute;
+            height: 1px;
+            width: 140%;
+            left: -20%;
+            z-index: 6;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .status {
+            margin-top: 50px;
+            font-size: 0.65rem;
+            letter-spacing: 0.6em;
+            text-transform: uppercase;
+            color: #555;
+            font-weight: 300;
+            transition: all 0.5s ease;
+        }
+
+        .noise {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.12; pointer-events: none; z-index: 20;
+        }
+
+        @media (max-width: 768px) {
+            .footer { bottom: unset; top: 30px; left: 20px; }
+            .controls { bottom: 20px; right: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise"></div>
+
+    <audio id="bgAudio" loop>
+        <source src="sounds/something.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="footer">
+        <a href="mailto:esteban@delamonja.com" class="email-link" id="email">esteban@delamonja.com</a>
+    </div>
+
+    <div class="controls">
+        <div id="playingLabel" class="now-playing">SIGNAL ACTIVE</div>
+        <button id="audioToggle" class="audio-btn">Audio Off</button>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+    </div>
+
+    <div class="viewport">
+        <div class="glitch-wrapper" id="scene">
+            <h1 id="target">Esteban<br>De la Monja</h1>
+        </div>
+        <div class="status" id="status">Currently Curating</div>
+    </div>
+
+    <script>
+        const scene = document.getElementById('scene');
+        const target = document.getElementById('target');
+        const audio = document.getElementById('bgAudio');
+        const audioBtn = document.getElementById('audioToggle');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const status = document.getElementById('status');
+        const email = document.getElementById('email');
+
+        // INITIAL RANDOMIZATION LOAD
+        window.onload = () => {
+            // Random Background Tone
+            const darkTones = ['#0a0a0a', '#0d0d0f', '#121212', '#08090a'];
+            document.body.style.backgroundColor = darkTones[Math.floor(Math.random() * darkTones.length)];
+
+            // Random Alignment
+            const alignments = ['center', 'left'];
+            const chosenAlign = alignments[Math.floor(Math.random() * alignments.length)];
+            scene.style.textAlign = chosenAlign;
+            if(chosenAlign === 'left') scene.style.transform = 'translateX(-10%)';
+
+            // Create Randomized Glitch Slices
+            const colors = ['var(--copper)', 'var(--pink)', '#ffffff', '#666'];
+            for (let i = 0; i < 10; i++) {
+                const slice = document.createElement('div');
+                slice.className = 'slice';
+                slice.innerHTML = "Esteban<br>De la Monja";
+                slice.style.color = colors[Math.floor(Math.random() * colors.length)];
+                scene.appendChild(slice);
+
+                const line = document.createElement('div');
+                line.className = 'glitch-line';
+                line.style.background = colors[Math.floor(Math.random() * 2)]; // Copper or Pink
+                scene.appendChild(line);
+            }
+        };
+
+        // SCROLL INTERACTION
+        window.addEventListener('scroll', () => {
+            const scroll = window.scrollY;
+            const slices = document.querySelectorAll('.slice');
+            const lines = document.querySelectorAll('.glitch-line');
+
+            if (scroll > 5) {
+                const intensity = scroll * 0.25;
+                
+                target.style.transform = `skewX(${(Math.random() - 0.5) * (scroll/20)}deg)`;
+                status.style.letterSpacing = `${0.6 + (scroll * 0.005)}em`;
+
+                slices.forEach((slice, i) => {
+                    const direction = i % 2 === 0 ? 1 : -1;
+                    slice.style.opacity = (Math.random() * 0.5).toString();
+                    slice.style.transform = `translate(${direction * Math.random() * intensity}px, ${(Math.random() - 0.5) * 10}px)`;
+                    slice.style.clipPath = `inset(${Math.random()*100}% 0 ${Math.random()*100}% 0)`;
+                });
+
+                lines.forEach((line) => {
+                    line.style.opacity = (Math.random() * 0.4).toString();
+                    line.style.top = `${Math.random() * 100}%`;
+                    line.style.transform = `translateX(${(Math.random() - 0.5) * 100}px)`;
+                });
+            } else {
+                target.style.transform = 'none';
+                slices.forEach(s => s.style.opacity = '0');
+                lines.forEach(l => l.style.opacity = '0');
+            }
+        });
+
+        // EMAIL SCRAMBLE EFFECT
+        const originalEmail = email.innerText;
+        const chars = "X/-_@<>{}[]1010";
+        email.addEventListener('mouseenter', () => {
+            let iteration = 0;
+            const interval = setInterval(() => {
+                email.innerText = originalEmail.split("").map((letter, index) => {
+                    if(index < iteration) return originalEmail[index];
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join("");
+                if(iteration >= originalEmail.length) clearInterval(interval);
+                iteration += 1/2;
+            }, 30);
+        });
+
+        // AUDIO LOGIC
+        audioBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                audioBtn.innerText = "Audio On";
+                audioBtn.classList.add('active');
+                document.getElementById('playingLabel').classList.add('visible');
+            } else {
+                audio.pause();
+                audioBtn.innerText = "Audio Off";
+                audioBtn.classList.remove('active');
+                document.getElementById('playingLabel').classList.remove('visible');
+            }
+        });
+
+        volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value; });
+    </script>
+</body>
+</html>
