@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dmaq Empresarial | Maquinados y Manufactura CNC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        h1, h2, h3, h4, .btn-font { font-family: 'Oswald', sans-serif; }
+        .text-brand-red { color: #FF4500; }
+        .bg-brand-red { background-color: #FF4500; }
+        .bg-brand-dark { background-color: #1A202C; }
+        .hero-overlay {
+            background: linear-gradient(to right, rgba(26,32,44, 0.95), rgba(26,32,44, 0.7));
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <nav class="bg-brand-dark text-white shadow-lg fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex-shrink-0 flex items-center cursor-pointer">
+                    <span class="text-3xl font-bold tracking-tighter">DMAQ<span class="text-brand-red">.</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#servicios" class="hover:text-brand-red transition font-medium">Servicios</a>
+                    <a href="#maquinaria" class="hover:text-brand-red transition font-medium">Capacidad</a>
+                    <a href="#contacto" class="px-5 py-2 bg-brand-red text-white rounded font-bold hover:bg-red-600 transition shadow-md">
+                        COTIZAR
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="relative h-screen flex items-center">
+        <div class="absolute inset-0 z-0">
+            <img src="cnc01.jpg" alt="Taller CNC Dmaq" class="w-full h-full object-cover">
+        </div>
+        <div class="absolute inset-0 z-10 hero-overlay"></div>
+        
+        <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-16">
+            <div class="max-w-3xl">
+                <div class="mb-6 flex flex-wrap gap-3">
+                    <span class="px-3 py-1 bg-green-600 text-white text-xs font-bold rounded uppercase tracking-wide shadow-sm">
+                        ISO 9001:2015
+                    </span>
+                    <span class="px-3 py-1 bg-gray-600 text-white text-xs font-bold rounded uppercase tracking-wide shadow-sm">
+                        CAABSA EAGLE
+                    </span>
+                </div>
+                <h1 class="text-5xl md:text-7xl text-white font-bold mb-6 uppercase leading-tight tracking-wide">
+                    Manufactura de <br><span class="text-brand-red">Alta Precisión</span>
+                </h1>
+                <p class="text-xl text-gray-300 mb-8 max-w-2xl font-light">
+                    Soluciones integrales en ingeniería aplicada: Desde el diseño de fixtures hasta la maquila CNC de volumen medio.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#contacto" class="btn-font text-center px-8 py-4 bg-brand-red text-white text-lg rounded shadow-lg hover:bg-red-600 transition transform hover:-translate-y-1">
+                        Cotizar Proyecto
+                    </a>
+                    <a href="#maquinaria" class="btn-font text-center px-8 py-4 border-2 border-white text-white text-lg rounded hover:bg-white hover:text-brand-dark transition">
+                        Ver Lista de Máquinas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="servicios" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4 uppercase tracking-tight">Nuestras Capacidades</h2>
+                <div class="w-24 h-1.5 bg-brand-red mx-auto rounded"></div>
+                <p class="mt-4 text-gray-500 max-w-2xl mx-auto">Procesos certificados enfocados en la industria automotriz y metalmecánica.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="group bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 hover:shadow-2xl transition duration-300">
+                    <div class="h-56 overflow-hidden">
+                        <img src="utillaje.jpg" alt="Fixtures y Utillaje" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-800">Diseño y Fixtures</h3>
+                        <p class="text-gray-600 mb-4 text-sm">Diseño y manufactura de dispositivos de sujeción (fixtures) para optimizar líneas de producción.</p>
+                        <ul class="text-sm text-gray-500 list-disc list-inside">
+                            <li>Fixturas de control</li>
+                            <li>Dados de extrusión</li>
+                            <li>Moldes plásticos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="group bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 hover:shadow-2xl transition duration-300">
+                    <div class="h-56 overflow-hidden">
+                        <img src="cnc02.jpg" alt="Maquinado CNC" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-800">Maquila CNC</h3>
+                        <p class="text-gray-600 mb-4 text-sm">Torneado y fresado CNC para series de volumen medio con tolerancias críticas.</p>
+                        <ul class="text-sm text-gray-500 list-disc list-inside">
+                            <li>Alta precisión</li>
+                            <li>Series medianas</li>
+                            <li>Materiales diversos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="group bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 hover:shadow-2xl transition duration-300">
+                    <div class="h-56 overflow-hidden">
+                        <img src="maquinado01.jpg" alt="Piezas Terminadas" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-800">Piezas Especiales</h3>
+                        <p class="text-gray-600 mb-4 text-sm">Fabricación de refacciones para mantenimiento industrial bajo diseño o muestra.</p>
+                        <ul class="text-sm text-gray-500 list-disc list-inside">
+                            <li>Ingeniería inversa</li>
+                            <li>Reparación de equipos</li>
+                            <li>Automatización</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="maquinaria" class="py-20 bg-gray-900 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 rounded-full border-8 border-gray-800 opacity-20"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="mb-12 border-l-8 border-brand-red pl-6">
+                <h2 class="text-4xl font-bold uppercase tracking-wider">Arsenal Tecnológico</h2>
+                <p class="text-gray-400 mt-2 text-lg">Capacidad instalada para enfrentar retos complejos.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                    <h4 class="text-xl text-brand-red font-bold mb-6 uppercase flex items-center">
+                        <span class="w-2 h-2 bg-brand-red rounded-full mr-3"></span>Fresado y Centros CNC
+                    </h4>
+                    <div class="bg-gray-800 rounded-lg p-6 space-y-4 hover:bg-gray-750 transition">
+                        <div class="flex justify-between border-b border-gray-700 pb-2">
+                            <span class="text-gray-300">Centro de Maquinado</span>
+                            <span class="font-bold text-white text-right">Hitachi-Seiki YA35-11<br><span class="text-xs text-gray-500 font-normal">1000x355 mm</span></span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-700 pb-2">
+                            <span class="text-gray-300">Fresadora Horizontal</span>
+                            <span class="font-bold text-white">Van Norman No 35</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Perfiladoras (x2)</span>
+                            <span class="font-bold text-white">Bridgeport</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xl text-brand-red font-bold mb-6 uppercase flex items-center">
+                        <span class="w-2 h-2 bg-brand-red rounded-full mr-3"></span>Torneado de Precisión
+                    </h4>
+                    <div class="bg-gray-800 rounded-lg p-6 space-y-4 hover:bg-gray-750 transition">
+                        <div class="flex justify-between border-b border-gray-700 pb-2">
+                            <span class="text-gray-300">Torno CNC</span>
+                            <span class="font-bold text-white">Mori Seiki AL-2</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-700 pb-2">
+                            <span class="text-gray-300">Torno Paralelo (Gran Formato)</span>
+                            <span class="font-bold text-white text-right">Pinacho A 77<br><span class="text-xs text-gray-500 font-normal">Volteo 24" / Bancada 120"</span></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Tornos Convencionales</span>
+                            <span class="font-bold text-white">Jiangsu Taixing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-50 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h3 class="text-gray-400 font-bold uppercase mb-10 tracking-[0.2em] text-sm">Confían en nosotros</h3>
+            <div class="flex flex-wrap justify-center gap-16 items-baseline opacity-50">
+                <span class="text-3xl font-black text-gray-800 font-sans tracking-tight">ABB</span>
+                <span class="text-2xl font-black text-gray-800 font-serif">SIEMENS</span>
+                <span class="text-2xl font-bold text-gray-800">TRACTO DE MÉXICO</span>
+                <span class="text-2xl font-black text-gray-800 italic">PEOSA</span>
+                <span class="text-xl font-bold text-gray-800">INJECTION ALLOYS</span>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contacto" class="bg-brand-dark text-white border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                
+                <div class="col-span-1 lg:col-span-2">
+                    <span class="text-3xl font-bold tracking-tighter">DMAQ<span class="text-brand-red">.</span></span>
+                    <p class="mt-4 text-gray-400 max-w-sm">
+                        Ingeniería y manufactura de clase mundial en Guadalajara. Comprometidos con la precisión, la ética y la seguridad industrial.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold mb-4 text-white uppercase tracking-wider">Contacto</h4>
+                    <p class="text-gray-400 mb-2">C. Galeana 468A-S<br>Paraísos del Colli, Zapopan.</p>
+                    <a href="mailto:gdelamonja@dmaq.com.mx" class="text-brand-red hover:text-white transition">gdelamonja@dmaq.com.mx</a>
+                    <p class="text-gray-500 mt-2 text-sm">Lun-Sab: 07:00 - 16:30</p>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-bold mb-4 text-white uppercase tracking-wider">Acción</h4>
+                    <a href="https://wa.me/523331805800" class="flex items-center justify-center w-full px-4 py-3 bg-green-600 text-white rounded font-bold hover:bg-green-700 transition">
+                        WhatsApp Directo
+                    </a>
+                    <a href="tel:3331805800" class="block text-center mt-4 text-gray-400 hover:text-white text-sm">
+                        Llamar a Oficina
+                    </a>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center text-gray-600 text-sm">
+                &copy; 2026 Dmaq Empresarial. Desarrollado por Console.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
