@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organic CV Translator – v1</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0e0e11;
+      color: #eaeaf0;
+      margin: 0;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #ff6fae;
+      margin-top: 2.5rem;
+    }
+    h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.6rem; }
+    h3 { font-size: 1.2rem; }
+    p, li {
+      max-width: 900px;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    .block {
+      background: #181820;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .schema {
+      font-family: "Courier New", monospace;
+      white-space: pre;
+      background: #0b0b0f;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      color: #b7f5d8;
+    }
+    .warn {
+      color: #ffd166;
+    }
+    footer {
+      margin-top: 4rem;
+      opacity: 0.6;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<h1>CVCooperator – v1</h1>
+<p><em>Cooperative CV behavior translator</em></p>
+<div class="block"><p><strong>Product description:</strong> CVCooperator is a cooperative voltage instrument for Eurorack that transforms rigid control signals into expressive, time-shaped motion. Rather than generating modulation, it negotiates between incoming voltage, human gesture, and temporal behavior using passive analog circuits and light-controlled resistance. The result is a living control surface where logic becomes movement.</p></div>
+<h2>Panel Preview</h2>
+<div class="block" style="text-align:center;">
+<p><strong>Metal / White Panel Mockup</strong></p>
+<img src="panel-white.png" alt="CVCooperator white panel" style="max-width:90%;border-radius:8px;" />
+<p><strong>Birch Plywood Panel Mockup</strong></p>
+<img src="panel-birch.png" alt="CVCooperator birch panel" style="max-width:90%;border-radius:8px;" />
+</div>
+<h2>Material & Added Value</h2>
+<div class="block"><p>The birch plywood version transforms CVCooperator from a utility module into a personal instrument. Birch adds warmth, tactile presence, and visible individuality: every panel carries its own grain, making each build unique. CNC engraving allows the signal flow, typography, and behavior language to be physically carved into the surface, aligning the material process with the module’s cooperative philosophy.</p></div>
+<p><strong>Passive / Gate-driven Eurorack utility module</strong><br />
+16 HP · 8 Inputs · 8 Outputs · No rack power required</p>
+
+<div class="block">
+  <p>
+    This module converts rigid gates and CVs into organic, slow, rubbery control voltages using
+    purely analog means: resistors, LDRs (vactrol-style), capacitors, and human-controlled attenuation.
+  </p>
+</div>
+
+<h2>1. Concept</h2>
+<p>
+  Digital logic is fast and sharp. Music often is not.
+  This module lives between those two worlds.
+</p>
+<ul>
+  <li>Input: gates, triggers, stepped CV (0–5 V)</li>
+  <li>Output: smoothed, lagged, human-scaled CV</li>
+  <li>Control: passive analog behavior + optional MCU-driven LEDs</li>
+</ul>
+
+<h2>2. System Architecture</h2>
+<div class="block">
+  <ul>
+    <li>No ±12 V Eurorack power used</li>
+    <li>ESP32 / Arduino powered over USB (optional)</li>
+    <li>All rack interaction is voltage-referenced only</li>
+    <li>Safe to experiment, safe to hot-patch</li>
+  </ul>
+</div>
+
+<h2>3. Single-Channel Core Schematic</h2>
+<p>This cell is replicated 8 times.</p>
+
+<div class="schema">
+IN (0–5V)
+   |
+ [1k–4.7k]
+   |
+   +---- Modulation Node -----> Attenuation Pot -----> OUT
+   |            |
+   |          [LDR]
+   |            |
+   |           GND
+   |
+   +---- [1µF – 4.7µF] -----> GND   (optional smoothing capacitor)
+</div>
+
+<h3>Component Notes</h3>
+<ul>
+  <li><strong>Series resistor:</strong> protects inputs and limits current</li>
+  <li><strong>LDR:</strong> acts as a slow, nonlinear variable resistor</li>
+  <li><strong>Capacitor:</strong> creates lag / glide (RC low-pass)</li>
+  <li><strong>Pot:</strong> manual attenuation and performance control</li>
+</ul>
+
+<h2>4. What the Capacitor Does</h2>
+<p>
+  The capacitor integrates voltage changes over time.
+  Instead of jumping instantly, the output moves gradually.
+</p>
+<ul>
+  <li>Small value (1µF): subtle smoothing</li>
+  <li>Medium (2.2–4.7µF): envelope-like motion</li>
+  <li>Large values: slow, drifting modulation</li>
+</ul>
+<p>
+  Combined with an LDR, the result is non-linear and musical.
+  The rise and fall times are different — like acoustic motion.
+</p>
+
+<h2>5. Using Vactrols / LDRs</h2>
+<p>
+  An LED shining on an LDR forms a voltage-controlled resistor.
+</p>
+<ul>
+  <li>LED brightness controlled by gate, PWM, or MCU</li>
+  <li>LDR resistance changes slowly and imperfectly</li>
+  <li>Each channel is slightly unique (this is a feature)</li>
+</ul>
+
+<h2>6. MCU Integration (Optional)</h2>
+<div class="block">
+  <p>
+    An ESP32 or Arduino can drive LEDs only.
+    It never touches Eurorack voltage directly.
+  </p>
+  <ul>
+    <li>PWM → LED → LDR</li>
+    <li>USB power only</li>
+    <li>Serial / MIDI / OSC from Max or Pure Data</li>
+  </ul>
+</div>
+
+<h2>7. Front Panel Layout (Suggested)</h2>
+<ul>
+  <li>Top row: 8 inputs</li>
+  <li>Middle: 8 attenuation pots</li>
+  <li>Optional switches: cap in/out or mode select</li>
+  <li>Bottom row: 8 outputs</li>
+</ul>
+
+<h2>8. Cautions & Good Practice</h2>
+<ul class="warn">
+  <li>Do not feed ±12 V signals into this module</li>
+  <li>Always include the series resistor</li>
+  <li>Hot glue Dupont cables only for prototyping</li>
+  <li>Expect channel variance — calibrate by ear</li>
+</ul>
+
+<h2>9. Philosophy</h2>
+<p>
+  This is not a precision tool.
+  It is a translator between logic and gesture.
+</p>
+<p>
+  Build one channel. Patch it. Listen.
+  Then replicate.
+</p>
+
+<footer>
+  <p>Organic CV Translator – v1<br />
+  Forma & Fondo Taller / De la Monja · Experimental Utility Module</p>
+</footer>
+
+</body>
+</html>
