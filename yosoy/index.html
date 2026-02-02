@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Camera AR System</title>
+  <title>Camera Token System</title>
 </head>
 <body>
 
@@ -46,16 +46,15 @@
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    // --- QR DETECTION ---
+    // --- QR DETECTION (persistent) ---
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
     if (qr && qr.data === "Stage001") {
       stage = "Stage001";
     }
 
-    // --- STAR DETECTION ---
-    const starPresent = detectStar(imageData);
+    // --- STAR TOKEN (conditional) ---
+    const starPresent = detectGreenStar(imageData);
 
-    // --- RENDER LOGIC ---
     if (starPresent) {
       applyBlackWhite(imageData);
       ctx.putImageData(imageData, 0, 0);
@@ -74,10 +73,10 @@
   function applyBlue(imageData) {
     const d = imageData.data;
     for (let i = 0; i < d.length; i += 4) {
-      d[i]   = 0;            // R
-      d[i+1] = 0;            // G
-      // keep luminance in blue
-      d[i+2] = (d[i] + d[i+1] + d[i+2]) / 3;
+      const v = (d[i] + d[i+1] + d[i+2]) / 3;
+      d[i]   = 0;
+      d[i+1] = 0;
+      d[i+2] = v;
     }
   }
 
@@ -91,43 +90,43 @@
   }
 
   // ----------------------------
-  // STAR DETECTION
+  // GREEN STAR DETECTION
   // ----------------------------
 
-  function detectStar(imageData) {
-  const d = imageData.data;
-  let magentaCount = 0;
-  let blackCount = 0;
+  function detectGreenStar(imageData) {
+    const d = imageData.data;
 
-  for (let i = 0; i < d.length; i += 4) {
-    const r = d[i];
-    const g = d[i + 1];
-    const b = d[i + 2];
+    let greenCount = 0;
+    let blackCount = 0;
 
-    // detect magenta background
-    if (r > 200 && g < 80 && b > 200) {
-      magentaCount++;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i];
+      const g = d[i + 1];
+      const b = d[i + 2];
+
+      // bright green background
+      if (g > 180 && r < 100 && b < 100) {
+        greenCount++;
+      }
+
+      // black star
+      if (r < 40 && g < 40 && b < 40) {
+        blackCount++;
+      }
     }
 
-    // detect black star
-    if (r < 40 && g < 40 && b < 40) {
-      blackCount++;
-    }
+    const total = d.length / 4;
+    const greenRatio = greenCount / total;
+    const blackRatio = blackCount / total;
+
+    // Uncomment if you want live tuning
+    // console.log(greenRatio.toFixed(3), blackRatio.toFixed(3));
+
+    return (
+      greenRatio > 0.08 &&   // enough green field
+      blackRatio > 0.03      // enough black star
+    );
   }
-
-  const total = d.length / 4;
-  const magentaRatio = magentaCount / total;
-  const blackRatio = blackCount / total;
-
-  // DEBUG if needed
-  // console.log(magentaRatio.toFixed(3), blackRatio.toFixed(3));
-
-  return (
-    magentaRatio > 0.05 &&
-    blackRatio > 0.03
-  );
-}
-
 </script>
 
 </body>
