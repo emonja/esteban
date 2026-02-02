@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Camera to Canvas</title>
+</head>
+<body>
+
+<button id="start">start camera</button>
+<br><br>
+
+<canvas id="canvas"></canvas>
+
+<script>
+  const startBtn = document.getElementById("start");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  const video = document.createElement("video");
+  video.setAttribute("playsinline", ""); // iOS: stay inline
+  video.autoplay = true;
+
+  let stream = null;
+
+  startBtn.onclick = async () => {
+    if (stream) return;
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    });
+
+    video.srcObject = stream;
+
+    video.onloadedmetadata = () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      requestAnimationFrame(draw);
+    };
+  };
+
+  function draw() {
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    requestAnimationFrame(draw);
+  }
+</script>
+
+</body>
+</html>
