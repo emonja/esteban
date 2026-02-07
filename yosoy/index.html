@@ -1,133 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Camera Token System</title>
+  <meta charset="UTF-8" />
+  <title>Immersive Experience — Entry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Firebase v9 compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #0f0f0f;
+      color: #eaeaea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: #1b1b1b;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 320px;
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+  </style>
 </head>
+
 <body>
-
-<button id="start">start camera</button>
-<br><br>
-
-<canvas id="canvas"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+  <div class="card">
+    <h2>Enter your ID</h2>
+    <input id="studentId" placeholder="Student ID" />
+    <button onclick="enter()">Enter</button>
+    <p id="msg"></p>
+  </div>
 
 <script>
-  const startBtn = document.getElementById("start");
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-
-  const video = document.createElement("video");
-  video.setAttribute("playsinline", "");
-  video.autoplay = true;
-
-  let stream = null;
-  let stage = "NONE";
-
-  startBtn.onclick = async () => {
-    if (stream) return;
-
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" }
-    });
-
-    video.srcObject = stream;
-
-    video.onloadedmetadata = () => {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      requestAnimationFrame(draw);
-    };
+  // 🔥 YOUR Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAlLmIKEa5448MbZRtBOhBYsaDXGtts8rY",
+    authDomain: "yo-soy-f0351.firebaseapp.com",
+    projectId: "yo-soy-f0351"
   };
 
-  function draw() {
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  let currentId = null;
 
-    // --- QR DETECTION (persistent) ---
-    const qr = jsQR(imageData.data, canvas.width, canvas.height);
-    if (qr && qr.data === "Stage001") {
-      stage = "Stage001";
-    }
+  async function enter() {
+    const id = document.getElementById("studentId").value.trim();
+    if (!id) return;
 
-    // --- STAR TOKEN (conditional) ---
-    const starPresent = detectGreenStar(imageData);
+    currentId = id;
 
-    if (starPresent) {
-      applyBlackWhite(imageData);
-      ctx.putImageData(imageData, 0, 0);
-    } else if (stage === "Stage001") {
-      applyBlue(imageData);
-      ctx.putImageData(imageData, 0, 0);
-    }
+    await db.collection("students").doc(id).set({
+      id: id,
+      online: true,
+      firstSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
 
-    requestAnimationFrame(draw);
+    document.getElementById("msg").innerText =
+      `Welcome, ${id}`;
   }
 
-  // ----------------------------
-  // IMAGE TRANSFORMS
-  // ----------------------------
-
-  function applyBlue(imageData) {
-    const d = imageData.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const v = (d[i] + d[i+1] + d[i+2]) / 3;
-      d[i]   = 0;
-      d[i+1] = 0;
-      d[i+2] = v;
-    }
-  }
-
-  function applyBlackWhite(imageData) {
-    const d = imageData.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const v = (d[i] + d[i+1] + d[i+2]) / 3;
-      const bw = v > 128 ? 255 : 0;
-      d[i] = d[i+1] = d[i+2] = bw;
-    }
-  }
-
-  // ----------------------------
-  // GREEN STAR DETECTION
-  // ----------------------------
-
-  function detectGreenStar(imageData) {
-    const d = imageData.data;
-
-    let greenCount = 0;
-    let blackCount = 0;
-
-    for (let i = 0; i < d.length; i += 4) {
-      const r = d[i];
-      const g = d[i + 1];
-      const b = d[i + 2];
-
-      // bright green background
-      if (g > 180 && r < 100 && b < 100) {
-        greenCount++;
-      }
-
-      // black star
-      if (r < 40 && g < 40 && b < 40) {
-        blackCount++;
-      }
-    }
-
-    const total = d.length / 4;
-    const greenRatio = greenCount / total;
-    const blackRatio = blackCount / total;
-
-    // Uncomment if you want live tuning
-    // console.log(greenRatio.toFixed(3), blackRatio.toFixed(3));
-
-    return (
-      greenRatio > 0.08 &&   // enough green field
-      blackRatio > 0.03      // enough black star
-    );
-  }
+  window.addEventListener("beforeunload", () => {
+    if (!currentId) return;
+    db.collection("students").doc(currentId).update({
+      online: false,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
 </script>
-
 </body>
 </html>
