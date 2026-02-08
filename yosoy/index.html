@@ -1,86 +1,226 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Immersive Experience — Entry</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YO SOY / ENTRADA</title>
 
-  <!-- Firebase v9 compat -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #0f0f0f;
-      color: #eaeaea;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .card {
-      background: #1b1b1b;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 320px;
-      text-align: center;
-    }
-    input, button {
-      width: 100%;
-      padding: 0.75rem;
-      margin-top: 1rem;
-      font-size: 1rem;
-    }
-  </style>
+<style>
+:root{
+  --bg:#0b0b0b;
+  --fg:#9a9a9a;
+  --accent:#00ff9c;
+  --dim:#444;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.screen{
+  max-width:480px;
+  margin:0 auto;
+  padding:32px 20px;
+  display:none;
+}
+
+.screen.active{display:block;}
+
+h1,h2{
+  font-size:14px;
+  font-weight:600;
+  color:var(--accent);
+  margin-bottom:16px;
+  letter-spacing:0.05em;
+}
+
+p{
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+
+input, button{
+  width:100%;
+  background:none;
+  border:1px solid var(--dim);
+  color:var(--fg);
+  padding:10px;
+  font-family:inherit;
+  font-size:13px;
+}
+
+button{
+  margin-top:12px;
+  cursor:pointer;
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+button:hover{
+  background:rgba(0,255,156,0.08);
+}
+
+.option{
+  border:1px solid var(--dim);
+  padding:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+}
+
+.option:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+.small{
+  color:var(--dim);
+  font-size:11px;
+}
+</style>
 </head>
 
 <body>
-  <div class="card">
-    <h2>Enter your ID</h2>
-    <input id="studentId" placeholder="Student ID" />
-    <button onclick="enter()">Enter</button>
-    <p id="msg"></p>
-  </div>
+
+<!-- SCREEN 0 : ID -->
+<div class="screen active" id="s0">
+  <h1>IDENTIFICACIÓN</h1>
+  <input id="studentId" placeholder="Ingresa tu ID" />
+  <button onclick="saveId()">CONTINUAR</button>
+</div>
+
+<!-- SCREEN 1 : ACK -->
+<div class="screen" id="s1">
+  <h1>PRESENCIA</h1>
+  <p id="presenceText"></p>
+  <button onclick="next(2)">CONTINUAR</button>
+</div>
+
+<!-- SCREEN 2 : CONDITION -->
+<div class="screen" id="s2">
+  <h1>CONDICIÓN</h1>
+  <p>
+    Usa el altavoz de tu dispositivo.<br>
+    No utilices audífonos.
+  </p>
+  <p class="small">
+    Tu sonido compartirá el espacio con otros sonidos.
+  </p>
+  <button onclick="next(3)">ACEPTAR</button>
+</div>
+
+<!-- SCREEN 3 : Q1 -->
+<div class="screen" id="s3">
+  <h2>En este momento, tu ritmo interno se siente más cercano a…</h2>
+  <div class="option" onclick="set('bpm',60)">Muy lento</div>
+  <div class="option" onclick="set('bpm',80)">Lento</div>
+  <div class="option" onclick="set('bpm',110)">Constante</div>
+  <div class="option" onclick="set('bpm',150)">Rápido</div>
+  <div class="option" onclick="set('bpm',190)">Muy rápido</div>
+</div>
+
+<!-- SCREEN 4 : Q2 -->
+<div class="screen" id="s4">
+  <h2>Hoy, tus pensamientos se sienten más como…</h2>
+  <div class="option" onclick="set('wave','sine')">Continuos</div>
+  <div class="option" onclick="set('wave','triangle')">Angulosos</div>
+  <div class="option" onclick="set('wave','square')">Repetitivos</div>
+  <div class="option" onclick="set('wave','sawtooth')">Inestables</div>
+</div>
+
+<!-- SCREEN 5 : Q3 -->
+<div class="screen" id="s5">
+  <h2>Tu nivel de energía emocional es…</h2>
+  <div class="option" onclick="set('freq',150)">Bajo</div>
+  <div class="option" onclick="set('freq',350)">Medio</div>
+  <div class="option" onclick="set('freq',800)">Alto</div>
+</div>
+
+<!-- SCREEN 6 : START -->
+<div class="screen" id="s6">
+  <h1>ACTIVACIÓN</h1>
+  <p>Tu sonido ya forma parte del espacio.</p>
+  <p class="small">Ajusta el volumen de tu dispositivo.</p>
+  <button onclick="launch()">INICIAR SONIDO</button>
+</div>
 
 <script>
-  // 🔥 YOUR Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyAlLmIKEa5448MbZRtBOhBYsaDXGtts8rY",
-    authDomain: "yo-soy-f0351.firebaseapp.com",
-    projectId: "yo-soy-f0351"
-  };
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_DOMAIN",
+  projectId: "TU_PROJECT_ID"
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  let currentId = null;
+/* STATE */
+let studentId = "";
+let tone = {};
+let rosterStatus = "invitado";
 
-  async function enter() {
-    const id = document.getElementById("studentId").value.trim();
-    if (!id) return;
+/* FLOW */
+function next(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+}
 
-    currentId = id;
+async function saveId(){
+  studentId = document.getElementById("studentId").value.trim();
+  if(!studentId) return;
 
-    await db.collection("students").doc(id).set({
-      id: id,
-      online: true,
-      firstSeen: firebase.firestore.FieldValue.serverTimestamp(),
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+  const rosterRef = db.collection("courseRoster").doc(studentId);
+  const rosterSnap = await rosterRef.get();
 
-    document.getElementById("msg").innerText =
-      `Welcome, ${id}`;
+  if(rosterSnap.exists){
+    rosterStatus = "en_lista";
+
+    // activate student on first arrival
+    await rosterRef.update({ status: "activo" });
+
+    document.getElementById("presenceText").innerHTML =
+      "Presencia confirmada.<br>Registro activado.";
+  }else{
+    rosterStatus = "invitado";
+    document.getElementById("presenceText").innerHTML =
+      "Presencia registrada.<br>Acceso como invitado.";
   }
 
-  window.addEventListener("beforeunload", () => {
-    if (!currentId) return;
-    db.collection("students").doc(currentId).update({
-      online: false,
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    });
+  await db.collection("students").doc(studentId).set({
+    id: studentId,
+    online: true,
+    rosterStatus: rosterStatus,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge:true });
+
+  next(1);
+}
+
+function set(key,value){
+  tone[key]=value;
+  const current=[...document.querySelectorAll('.screen')]
+    .findIndex(s=>s.classList.contains('active'));
+  next(current+1);
+}
+
+async function launch(){
+  await db.collection("students").doc(studentId).update({
+    tone: tone
   });
+
+  const params = new URLSearchParams(tone).toString();
+  window.location.href = "pulse.html?" + params;
+}
 </script>
+
 </body>
 </html>
