@@ -93,7 +93,7 @@ button:hover{
 <!-- SCREEN 0 : ID -->
 <div class="screen active" id="s0">
   <h1>IDENTIFICACIÓN</h1>
-  <input id="studentId" placeholder="Ingresa tu ID" />
+  <input id="studentId" placeholder="A12345678..." />
   <button onclick="saveId()">CONTINUAR</button>
 </div>
 
@@ -155,9 +155,9 @@ button:hover{
 <script>
 /* FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_DOMAIN",
-  projectId: "TU_PROJECT_ID"
+  apiKey: "AIzaSyAlLmIKEa5448MbZRtBOhBYsaDXGtts8rY",
+  authDomain: "yo-soy-f0351.firebaseapp.com",
+  projectId: "yo-soy-f0351"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -178,23 +178,31 @@ async function saveId(){
   studentId = document.getElementById("studentId").value.trim();
   if(!studentId) return;
 
-  const rosterRef = db.collection("courseRoster").doc(studentId);
-  const rosterSnap = await rosterRef.get();
+  let rosterStatus = "invitado";
 
-  if(rosterSnap.exists){
-    rosterStatus = "en_lista";
+  try {
+    const rosterRef = db.collection("courseRoster").doc(studentId);
+    const rosterSnap = await rosterRef.get();
 
-    // activate student on first arrival
-    await rosterRef.update({ status: "activo" });
+    if(rosterSnap.exists){
+      rosterStatus = "en_lista";
+      await rosterRef.update({ status: "activo" });
 
-    document.getElementById("presenceText").innerHTML =
-      "Presencia confirmada.<br>Registro activado.";
-  }else{
-    rosterStatus = "invitado";
+      document.getElementById("presenceText").innerHTML =
+        "Presencia confirmada.<br>Registro activado.";
+    } else {
+      document.getElementById("presenceText").innerHTML =
+        "Presencia registrada.<br>Acceso como invitado.";
+    }
+
+  } catch (err) {
+    console.warn("Roster check failed, continuing as invitado:", err.message);
+
     document.getElementById("presenceText").innerHTML =
       "Presencia registrada.<br>Acceso como invitado.";
   }
 
+  // This write must always happen
   await db.collection("students").doc(studentId).set({
     id: studentId,
     online: true,
@@ -204,6 +212,7 @@ async function saveId(){
 
   next(1);
 }
+
 
 function set(key,value){
   tone[key]=value;
@@ -217,9 +226,14 @@ async function launch(){
     tone: tone
   });
 
-  const params = new URLSearchParams(tone).toString();
+  const params = new URLSearchParams({
+    id: studentId,
+    ...tone
+  }).toString();
+
   window.location.href = "pulse.html?" + params;
 }
+
 </script>
 
 </body>

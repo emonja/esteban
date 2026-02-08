@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YO SOY — Manual v01</title>
+
+<style>
+:root{
+  --bg:#0b0b0b;
+  --fg:#9a9a9a;
+  --accent:#00ff9c;
+  --dim:#444;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.container{
+  max-width:820px;
+  margin:0 auto;
+  padding:48px 24px 80px;
+}
+
+h1,h2,h3{
+  color:var(--accent);
+  font-weight:600;
+  letter-spacing:0.05em;
+}
+
+h1{
+  font-size:22px;
+  margin-bottom:8px;
+}
+
+h2{
+  font-size:16px;
+  margin-top:48px;
+  margin-bottom:12px;
+}
+
+h3{
+  font-size:14px;
+  margin-top:32px;
+  margin-bottom:8px;
+}
+
+p{
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:16px;
+}
+
+ul{
+  margin-left:18px;
+  margin-bottom:16px;
+}
+
+li{
+  margin-bottom:6px;
+}
+
+code, pre{
+  background:#111;
+  border:1px solid var(--dim);
+  padding:12px;
+  display:block;
+  font-size:13px;
+  overflow-x:auto;
+  margin:16px 0;
+}
+
+.small{
+  font-size:12px;
+  color:var(--dim);
+}
+
+hr{
+  border:none;
+  border-top:1px solid var(--dim);
+  margin:48px 0;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>YO SOY</h1>
+<p class="small">Manual & Development Log — v01</p>
+
+<hr>
+
+<h2>1. Project Overview</h2>
+
+<p>
+<strong>YO SOY</strong> is an experiential pedagogical system designed to explore
+individuality, community, agency, control, and emergence through sound.
+</p>
+
+<p>
+Rather than explaining these concepts verbally, the system places participants
+inside them. Each participant becomes a continuous sonic presence in a shared
+physical space.
+</p>
+
+<p>
+No performance is required. No verbal introduction is requested.
+Sound exists. Participation is unavoidable once entered.
+</p>
+
+<hr>
+
+<h2>2. Pedagogical Intent</h2>
+
+<p>
+This project was developed in response to several recurring problems in
+educational contexts:
+</p>
+
+<ul>
+  <li>First-day introductions that expose or pressure students</li>
+  <li>Superficial inclusion rituals</li>
+  <li>The privatization of public space by personal devices</li>
+  <li>Students’ high sensitivity to external stimuli and systems</li>
+</ul>
+
+<p>
+Instead of asking students to speak, the system asks them to <em>exist</em>.
+</p>
+
+<p>
+There is no evaluation, no correctness, and no failure.
+The experience becomes the material for reflection afterward.
+</p>
+
+<hr>
+
+<h2>3. Conceptual Structure</h2>
+
+<h3>Stage-Based Design</h3>
+
+<p>
+The project is structured in stages. Each stage modifies the relationship
+between the individual and the system.
+</p>
+
+<h3>Stage 1 — Individuals in a Bunch (Current)</h3>
+
+<ul>
+  <li>Each participant uses their own device</li>
+  <li>Sound is emitted through device speakers (no headphones)</li>
+  <li>Each sound is different</li>
+  <li>All sounds share the same physical space</li>
+</ul>
+
+<p>
+The result is a layered, imperfect, spatial sonic crowd.
+There is no synchronization and no hierarchy.
+</p>
+
+<p>
+Later stages will progressively remove individual control and introduce
+collective behavior.
+</p>
+
+<hr>
+
+<h2>4. System Architecture</h2>
+
+<h3>4.1 index.html — Entry & Conditioning</h3>
+
+<p>
+The entry interface is responsible for registering presence and establishing
+the conditions of the experience.
+</p>
+
+<ul>
+  <li>ID-based entry (non-personal, secular identifiers)</li>
+  <li>No authentication</li>
+  <li>Explicit instruction to use speakers</li>
+  <li>Silent progression through screens</li>
+</ul>
+
+<p>
+The questionnaire does not collect personal data. It collects symbolic
+parameters only.
+</p>
+
+<h3>4.2 pulse.html — Sonic Instrument</h3>
+
+<p>
+The pulse interface turns each participant into a continuous sonic agent.
+</p>
+
+<ul>
+  <li>Web Audio API oscillator</li>
+  <li>ADSR envelope</li>
+  <li>BPM-based triggering</li>
+  <li>Waveform selection</li>
+  <li>Waveform and envelope visualization</li>
+</ul>
+
+<p>
+The instrument is identical for everyone, but configured differently.
+</p>
+
+<hr>
+
+<h2>5. Questionnaire → Sound Mapping</h2>
+
+<p>
+Subjective states are translated into sound parameters:
+</p>
+
+<ul>
+  <li>Internal rhythm → BPM</li>
+  <li>Thought texture → Waveform</li>
+  <li>Emotional energy → Frequency</li>
+</ul>
+
+<p>
+This translation is symbolic, not diagnostic.
+The student is encoding presence, not describing identity.
+</p>
+
+<hr>
+
+<h2>6. Data Layer (Firebase)</h2>
+
+<h3>6.1 Firestore Collections</h3>
+
+<h3>students/{studentId}</h3>
+
+<pre>
+{
+  id: "A12345678",
+  online: true,
+  rosterStatus: "invitado" | "en_lista",
+  tone: {
+    freq: 800,
+    bpm: 110,
+    wave: "square",
+    adsr: { a: 0.05, d: 0.1, s: 0.6, r: 0.2 }
+  },
+  updatedAt: timestamp
+}
+</pre>
+
+<h3>courseRoster/{studentId}</h3>
+
+<p>
+Used to preload known participants and distinguish enrolled students from
+guests. This allows institutional use without authentication.
+</p>
+
+<hr>
+
+<h2>7. Audio Design Constraints</h2>
+
+<p>
+Several constraints are deliberate:
+</p>
+
+<ul>
+  <li>No headphones — forces shared space</li>
+  <li>Continuous sound — presence cannot be paused</li>
+  <li>Minimal controls — avoids performance mindset</li>
+  <li>Neutral visuals — informational, not expressive</li>
+</ul>
+
+<p>
+The instrument is not meant to sound good.
+It is meant to exist.
+</p>
+
+<hr>
+
+<h2>8. Technical Status (Stage 1)</h2>
+
+<h3>Working</h3>
+<ul>
+  <li>Presence registration</li>
+  <li>Firebase writes and updates</li>
+  <li>Individual sound generation</li>
+  <li>Real-time waveform and envelope visuals</li>
+  <li>ID-based routing index → pulse</li>
+</ul>
+
+<h3>Provisional</h3>
+<ul>
+  <li>Roster-based role resolution</li>
+  <li>Presence pinging</li>
+  <li>Visual tuning</li>
+</ul>
+
+<h3>Not Implemented</h3>
+<ul>
+  <li>Centralized control</li>
+  <li>Group aggregation</li>
+  <li>Instructor console</li>
+  <li>Stage 2 logic</li>
+</ul>
+
+<hr>
+
+<h2>9. Ethical Notes</h2>
+
+<p>
+The system intentionally creates discomfort:
+</p>
+
+<ul>
+  <li>Sound cannot be ignored</li>
+  <li>Contribution is involuntary</li>
+  <li>Individual actions affect the group</li>
+</ul>
+
+<p>
+These conditions mirror real-world shared systems.
+The discussion happens after the experience, not before.
+</p>
+
+<hr>
+
+<h2>10. Current Position</h2>
+
+<p>
+Stage 1 is conceptually complete and technically functional.
+The system is stable enough for classroom deployment and discussion,
+but not yet locked for scale or Stage 2.
+</p>
+
+<hr>
+
+<h2>11. Handoff Note</h2>
+
+<p>
+If you are resuming this project:
+</p>
+
+<ul>
+  <li>Do not over-explain before running it</li>
+  <li>Do not clean up discomfort</li>
+  <li>Let silence and sound do the work</li>
+</ul>
+
+<p>
+Your role is not to guide the experience,
+but to hold the space afterward.
+</p>
+
+<hr>
+
+<p class="small">
+YO SOY — Manual v01  
+Stage 1: Individual Sonic Presence  
+Development paused intentionally at this point.
+</p>
+
+</div>
+</body>
+</html>
