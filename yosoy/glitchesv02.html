@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>YO SOY — Glitches Log v02</title>
+<style>
+:root{ --bg:#0b0b0b; --fg:#9a9a9a; --accent:#00ff9c; --warn:#ff6b6b; --dim:#444; }
+body{ background:var(--bg); color:var(--fg); font-family:ui-monospace,monospace; padding:48px; }
+.glitch{ border-left:3px solid var(--warn); padding-left:16px; margin:24px 0; }
+.status-resolved{ color:var(--accent); font-size:12px; font-weight:bold; }
+.status-active{ color:var(--warn); font-size:12px; font-weight:bold; }
+</style>
+</head>
+<body>
+<h1>YO SOY — Glitches & Faults Log</h1>
+
+<div class="glitch">
+  <p class="status-resolved">STATUS: RESOLVED</p>
+  <h3>Glitch 01 — Database State Ignored</h3>
+  <p>The instrument formerly ignored questionnaire values on startup. Hydration logic now forces the oscillator and UI to match the stored symbolic state.</p>
+</div>
+
+<div class="glitch">
+  <p class="status-resolved">STATUS: RESOLVED</p>
+  <h3>Glitch 02 — Persistent Guest Status</h3>
+  <p>Permission denied errors in the Firestore rules prevented roster lookups. Rules have been updated to allow document ID get requests for the roster.</p>
+</div>
+
+<div class="glitch">
+  <p class="status-active">STATUS: ACTIVE (STAGE 2)</p>
+  <h3>Glitch 03 — Propagation Delay</h3>
+  <p>In high-traffic environments, the <code>onSnapshot</code> broadcast may experience 1-2 second latency. This creates a staggered "wave" effect when Force Sync is toggled, which has been preserved as a pedagogical artifact of system friction.</p>
+</div>
+
+<div class="glitch">
+  <p class="status-active">STATUS: ACTIVE (STAGE 2)</p>
+  <h3>Glitch 04 — CSS Collapse</h3>
+  <p>During the integration of the ADSR controls, the custom range-input styling was susceptible to browser-default overrides. Re-injection of <code>-webkit-appearance: none</code> was required for Image A parity.</p>
+</div>
+
+</body>
+</html>

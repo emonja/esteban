@@ -173,7 +173,6 @@ function next(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('s'+n).classList.add('active');
 }
-
 async function saveId(){
   studentId = document.getElementById("studentId").value.trim();
   if(!studentId) return;
@@ -187,22 +186,15 @@ async function saveId(){
     if(rosterSnap.exists){
       rosterStatus = "en_lista";
       await rosterRef.update({ status: "activo" });
-
-      document.getElementById("presenceText").innerHTML =
-        "Presencia confirmada.<br>Registro activado.";
+      document.getElementById("presenceText").innerHTML = "Presencia confirmada.<br>Registro activado.";
     } else {
-      document.getElementById("presenceText").innerHTML =
-        "Presencia registrada.<br>Acceso como invitado.";
+      document.getElementById("presenceText").innerHTML = "Presencia registrada.<br>Acceso como invitado.";
     }
-
   } catch (err) {
-    console.warn("Roster check failed, continuing as invitado:", err.message);
-
-    document.getElementById("presenceText").innerHTML =
-      "Presencia registrada.<br>Acceso como invitado.";
+    // If permissions fail, it still lets them in as guests
+    document.getElementById("presenceText").innerHTML = "Presencia registrada.<br>Acceso como invitado.";
   }
 
-  // This write must always happen
   await db.collection("students").doc(studentId).set({
     id: studentId,
     online: true,

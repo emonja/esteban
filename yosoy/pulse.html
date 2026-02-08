@@ -4,388 +4,139 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>YO SOY</title>
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-:root{
-  --bg:#0b0b0b;
-  --fg:#9a9a9a;
-  --accent:#00ff9c;
-  --dim:#444;
-}
+:root{ --bg:#0b0b0b; --fg:#9a9a9a; --accent:#00ff9c; --dim:#444; }
+body{ margin:0; background:var(--bg); color:var(--fg); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+.container{ max-width:440px; margin:auto; padding:16px; }
+h1{ font-size:20px; font-weight:600; display:flex; justify-content:space-between; align-items:center; color:var(--accent); letter-spacing:.05em; }
+button{ background:none; border:1px solid var(--accent); color:var(--accent); padding:6px 12px; font-size:13px; cursor:pointer; }
+button:hover{ background:rgba(0,255,156,.08); }
+canvas{ width:100%; height:100px; margin-top:10px; }
 
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--fg);
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-}
+/* SLIDER STYLING - Image A Restoration */
+.control{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.control label{ width:28px; color:var(--accent); font-weight:600; }
+input[type=range]{ -webkit-appearance:none; appearance:none; flex:1; height:18px; background:transparent; cursor:pointer; }
+input[type=range]::-webkit-slider-runnable-track{ height:6px; background:var(--dim); }
+input[type=range]::-moz-range-track{ height:6px; background:var(--dim); }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:16px; height:16px; margin-top:-5px; background:var(--accent); cursor:pointer; }
+input[type=range]::-moz-range-thumb{ width:16px; height:16px; background:var(--accent); border:none; cursor:pointer; }
+.value{ width:48px; text-align:right; color:var(--accent); }
+.wave-btns{ display:flex; gap:6px; }
+.wave-btn{ width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:1px solid var(--dim); color:var(--fg); cursor:pointer; }
+.wave-btn.active{ border-color:var(--accent); color:var(--accent); }
 
-.container{
-  max-width:440px;
-  margin:auto;
-  padding:16px;
-}
-
-h1{
-  font-size:20px;
-  font-weight:600;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  color:var(--accent);
-  letter-spacing:.05em;
-}
-
-button{
-  background:none;
-  border:1px solid var(--accent);
-  color:var(--accent);
-  padding:6px 12px;
-  font-size:13px;
-  cursor:pointer;
-}
-
-button:hover{
-  background:rgba(0,255,156,.08);
-}
-
-canvas{
-  width:100%;
-  height:100px;
-  margin-top:10px;
-}
-
-/* ---------- CONTROLS ---------- */
-
-.control{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:16px;
-}
-
-.control label{
-  width:28px;
-  color:var(--accent);
-  font-weight:600;
-}
-
-/* ---------- RANGE ---------- */
-
-input[type=range]{
-  -webkit-appearance:none;
-  appearance:none;
-  flex:1;
-  height:18px;
-  background:transparent;
-  cursor:pointer;
-}
-
-input[type=range]::-webkit-slider-runnable-track{
-  height:6px;
-  background:var(--dim);
-}
-
-input[type=range]::-moz-range-track{
-  height:6px;
-  background:var(--dim);
-}
-
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;
-  appearance:none;
-  width:16px;
-  height:16px;
-  margin-top:-5px;
-  background:var(--accent);
-  cursor:pointer;
-}
-
-input[type=range]::-moz-range-thumb{
-  width:16px;
-  height:16px;
-  background:var(--accent);
-  border:none;
-  cursor:pointer;
-}
-
-/* VALUES */
-.value{
-  width:48px;
-  text-align:right;
-  color:var(--accent);
-}
-
-/* WAVES */
-.wave-btns{
-  display:flex;
-  gap:6px;
-}
-
-.wave-btn{
-  width:24px;
-  height:24px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid var(--dim);
-  color:var(--fg);
-  cursor:pointer;
-}
-
-.wave-btn.active{
-  border-color:var(--accent);
-  color:var(--accent);
-}
+/* STAGE 2 INDICATOR */
+#status-indicator { font-size: 10px; color: var(--dim); margin-top: 4px; text-transform: uppercase; }
+.locked { opacity: 0.5; pointer-events: none; }
 </style>
 </head>
-
 <body>
 <div class="container">
-
-<h1>
-  YO SOY
-  <button id="toggle">START</button>
-</h1>
-
+<h1>YO SOY <button id="toggle">START</button></h1>
+<div id="status-indicator">Individuo</div>
 <canvas id="scope"></canvas>
 <canvas id="envScope"></canvas>
 
-<div class="control">
-  <label>Hz</label>
-  <input type="range" id="freq" min="50" max="2000" value="440">
-  <div class="value" id="freqVal">440</div>
-</div>
-
-<div class="control">
-  <label>BPM</label>
-  <input type="range" id="bpm" min="1" max="240" value="120">
-  <div class="value" id="bpmVal">120</div>
-</div>
-
-<div class="control">
-  <label>W</label>
-  <div class="wave-btns">
+<div class="control" id="ctrl-freq"><label>Hz</label><input type="range" id="freq" min="50" max="2000" value="440"><div class="value" id="freqVal">440</div></div>
+<div class="control" id="ctrl-bpm"><label>BPM</label><input type="range" id="bpm" min="1" max="240" value="120"><div class="value" id="bpmVal">120</div></div>
+<div class="control" id="ctrl-wave"><label>W</label><div class="wave-btns">
     <div class="wave-btn active" data-wave="sine">S</div>
     <div class="wave-btn" data-wave="triangle">T</div>
     <div class="wave-btn" data-wave="square">Q</div>
     <div class="wave-btn" data-wave="sawtooth">∧</div>
-  </div>
-</div>
-
-<div class="control"><label>A</label><input type="range" id="attack" min="0" max="1" step="0.01" value="0.05"></div>
-<div class="control"><label>D</label><input type="range" id="decay" min="0" max="1" step="0.01" value="0.1"></div>
-<div class="control"><label>S</label><input type="range" id="sustain" min="0" max="1" step="0.01" value="0.6"></div>
-<div class="control"><label>R</label><input type="range" id="release" min="0" max="1" step="0.01" value="0.2"></div>
+</div></div>
+<div class="control" id="ctrl-a"><label>A</label><input type="range" id="attack" min="0" max="1" step="0.01" value="0.05"></div>
+<div class="control" id="ctrl-d"><label>D</label><input type="range" id="decay" min="0" max="1" step="0.01" value="0.1"></div>
+<div class="control" id="ctrl-s"><label>S</label><input type="range" id="sustain" min="0" max="1" step="0.01" value="0.6"></div>
+<div class="control" id="ctrl-r"><label>R</label><input type="range" id="release" min="0" max="1" step="0.01" value="0.2"></div>
 
 <script>
-// ---- URL / ID MUST COME FIRST ----
 const params = new URLSearchParams(window.location.search);
 const studentId = params.get("id");
-
-console.log("PULSE LOADED — studentId:", studentId);
-
-
-
-/* ---------- FIREBASE ---------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyAlLmIKEa5448MbZRtBOhBYsaDXGtts8rY",
-  authDomain: "yo-soy-f0351.firebaseapp.com",
-  databaseURL: "https://yo-soy-f0351-default-rtdb.firebaseio.com",
-  projectId: "yo-soy-f0351",
-  storageBucket: "yo-soy-f0351.firebasestorage.app",
-  messagingSenderId: "862853301934",
-  appId: "1:862853301934:web:39455f6685777ca8c50f3f",
-  measurementId: "G-90ED9HJNPW"
-};
-
-// ✅ CORRECT for compat
+const firebaseConfig = { apiKey: "AIzaSyAlLmIKEa5448MbZRtBOhBYsaDXGtts8rY", authDomain: "yo-soy-f0351.firebaseapp.com", projectId: "yo-soy-f0351" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-console.log("Firebase initialized:", !!db);
+let audioCtx, osc, gainNode, analyser, running=false, nextNoteTime=0, globalMute=false;
+const f=document.getElementById('freq'), b=document.getElementById('bpm'), fV=document.getElementById('freqVal'), bV=document.getElementById('bpmVal'), tB=document.getElementById('toggle'), sInd=document.getElementById('status-indicator');
+const att=document.getElementById('attack'), dec=document.getElementById('decay'), sus=document.getElementById('sustain'), rel=document.getElementById('release'), wBs=document.querySelectorAll('.wave-btn');
 
+f.oninput=()=>{ fV.textContent=f.value; if(osc) osc.frequency.setTargetAtTime(+f.value, audioCtx.currentTime, 0.03); saveTone(); };
+b.oninput=()=>{ bV.textContent=b.value; saveTone(); };
+wBs.forEach(btn=>{ btn.onclick=()=>{ wBs.forEach(x=>x.classList.remove('active')); btn.classList.add('active'); if(osc) osc.type=btn.dataset.wave; saveTone(); }; });
+[att, dec, sus, rel].forEach(x => x.oninput = saveTone);
 
-
-/* ---------- AUDIO ---------- */
-const MIN_TIME=0.005, MAX_GAIN=0.9;
-let audioCtx, osc, gainNode, analyser;
-let running=false, nextNoteTime=0, scheduleAhead=0.1;
-
-/* ---------- UI ---------- */
-const freq=document.getElementById('freq');
-const bpm=document.getElementById('bpm');
-const freqVal=document.getElementById('freqVal');
-const bpmVal=document.getElementById('bpmVal');
-const toggleBtn=document.getElementById('toggle');
-
-const attack=document.getElementById('attack');
-const decay=document.getElementById('decay');
-const sustain=document.getElementById('sustain');
-const release=document.getElementById('release');
-const waveBtns=document.querySelectorAll('.wave-btn');
-
-freqVal.textContent=freq.value;
-bpmVal.textContent=bpm.value;
-
-freq.oninput=()=>{freqVal.textContent=freq.value; if(osc) osc.frequency.setValueAtTime(+freq.value,audioCtx.currentTime);}
-bpm.oninput=()=>bpmVal.textContent=bpm.value;
-
-waveBtns.forEach(btn=>{
-  btn.onclick=()=>{
-    waveBtns.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    if(osc) osc.type=btn.dataset.wave;
-  };
+// BROADCAST LISTENER (Stage 2)
+db.collection("commands").doc("global").onSnapshot(snap => {
+    if(!snap.exists) return;
+    const cmd = snap.data();
+    globalMute = cmd.forceMute;
+    
+    if(cmd.forceSync) {
+        sInd.innerText = "Sincronía Forzada (Agregador)";
+        document.querySelectorAll('.control').forEach(c => c.classList.add('locked'));
+        // Hydrate from Global Command
+        f.value = cmd.tone.freq; fV.textContent = f.value;
+        b.value = cmd.tone.bpm; bV.textContent = b.value;
+        att.value = cmd.tone.adsr.a; dec.value = cmd.tone.adsr.d;
+        sus.value = cmd.tone.adsr.s; rel.value = cmd.tone.adsr.r;
+        if(osc) osc.frequency.setTargetAtTime(+f.value, audioCtx.currentTime, 0.03);
+    } else {
+        sInd.innerText = "Individuo";
+        document.querySelectorAll('.control').forEach(c => c.classList.remove('locked'));
+    }
 });
 
-function secondsPerBeat(){return 60/bpm.value;}
-
-function triggerEnvelope(time){
-  const g=gainNode.gain;
-  const a=Math.max(+attack.value,MIN_TIME);
-  const d=Math.max(+decay.value,MIN_TIME);
-  const r=Math.max(+release.value,MIN_TIME);
-  const s=Math.min(+sustain.value*MAX_GAIN,MAX_GAIN);
-  g.cancelScheduledValues(time);
-  g.setValueAtTime(0,time);
-  g.linearRampToValueAtTime(MAX_GAIN,time+a);
-  g.linearRampToValueAtTime(s,time+a+d);
-  g.linearRampToValueAtTime(0,time+a+d+r);
+function triggerEnvelope(t){
+  if(globalMute) return; // Silent execution during force mute
+  const g=gainNode.gain, a=+att.value, d=+dec.value, r=+rel.value, s=+sus.value * 0.9;
+  g.cancelScheduledValues(t); g.setValueAtTime(0,t); g.linearRampToValueAtTime(0.9,t+a); g.linearRampToValueAtTime(s,t+a+d); g.linearRampToValueAtTime(0,t+a+d+r);
 }
 
-function scheduler(){
-  if(!running) return;
-  while(nextNoteTime<audioCtx.currentTime+scheduleAhead){
-    triggerEnvelope(nextNoteTime);
-    nextNoteTime+=secondsPerBeat();
-  }
-  requestAnimationFrame(scheduler);
-}
-
-/* ---------- VISUALS ---------- */
-const scope=document.getElementById('scope');
-const scopeCtx=scope.getContext('2d');
-const env=document.getElementById('envScope');
-const envCtx=env.getContext('2d');
-
-const ACCENT_COLOR = '#00ff9c'; // Fixed: Canvas needs literal colors
+function scheduler(){ if(!running) return; while(nextNoteTime < audioCtx.currentTime + 0.1){ triggerEnvelope(nextNoteTime); nextNoteTime += 60/b.value; } requestAnimationFrame(scheduler); }
 
 function drawScope(){
   if(!running) return;
-  const buf=new Uint8Array(analyser.fftSize);
-  analyser.getByteTimeDomainData(buf);
-  scopeCtx.clearRect(0,0,scope.width,scope.height);
-  scopeCtx.strokeStyle=ACCENT_COLOR;
-  scopeCtx.lineWidth=2;
-  scopeCtx.beginPath();
-  buf.forEach((v,i)=>{
-    const x=i/buf.length*scope.width;
-    const y=v/255*scope.height;
-    i?scopeCtx.lineTo(x,y):scopeCtx.moveTo(x,y);
-  });
-  scopeCtx.stroke();
-  requestAnimationFrame(drawScope);
+  const buf=new Uint8Array(analyser.fftSize); analyser.getByteTimeDomainData(buf);
+  const ctx = document.getElementById('scope').getContext('2d');
+  ctx.clearRect(0,0,440,100); ctx.strokeStyle='#00ff9c'; ctx.lineWidth=2; ctx.beginPath();
+  buf.forEach((v,i)=>{ const x=i/buf.length*440; const y=v/255*100; i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+  ctx.stroke(); requestAnimationFrame(drawScope);
 }
 
 function drawEnvelope(){
   if(!running) return;
-  envCtx.clearRect(0,0,env.width,env.height);
-  envCtx.strokeStyle=ACCENT_COLOR;
-  envCtx.lineWidth=2;
-  envCtx.beginPath();
-  envCtx.moveTo(0,env.height);
-  envCtx.lineTo(env.width*0.3,0);
-  envCtx.lineTo(env.width*0.7,env.height*0.6);
-  envCtx.lineTo(env.width,env.height);
-  envCtx.stroke();
-  requestAnimationFrame(drawEnvelope);
+  const ctx = document.getElementById('envScope').getContext('2d');
+  ctx.clearRect(0,0,440,100); ctx.strokeStyle='#00ff9c'; ctx.lineWidth=2; ctx.beginPath();
+  ctx.moveTo(0,100); ctx.lineTo(440*0.2,0); ctx.lineTo(440*0.5,60); ctx.lineTo(440,100);
+  ctx.stroke(); requestAnimationFrame(drawEnvelope);
 }
 
-toggleBtn.onclick = async () => {
+tB.onclick = async () => {
   if (!running) {
-
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    osc = audioCtx.createOscillator();
-    gainNode = audioCtx.createGain();
-    analyser = audioCtx.createAnalyser();
-
-    gainNode.gain.value = 0;
-    osc.type = document.querySelector('.wave-btn.active').dataset.wave;
-    osc.frequency.value = +freq.value;
-
-    osc.connect(gainNode);
-    gainNode.connect(analyser);
-    analyser.connect(audioCtx.destination);
-
-    // Load tone from Firestore (non-fatal)
     if (studentId) {
-      try {
-        const snap = await db.collection("students").doc(studentId).get();
-        if (snap.exists && snap.data().tone) {
-          const t = snap.data().tone;
-          freq.value    = t.freq ?? freq.value;
-          bpm.value     = t.bpm ?? bpm.value;
-          attack.value  = t.adsr?.a ?? attack.value;
-          decay.value   = t.adsr?.d ?? decay.value;
-          sustain.value = t.adsr?.s ?? sustain.value;
-          release.value = t.adsr?.r ?? release.value;
-        }
-      } catch (e) {
-        console.warn("Tone load skipped:", e);
+      const snap = await db.collection("students").doc(studentId).get();
+      if (snap.exists && snap.data().tone) {
+        const t = snap.data().tone;
+        f.value = t.freq; fV.textContent = t.freq; b.value = t.bpm; bV.textContent = t.bpm;
+        if(t.adsr) { att.value = t.adsr.a; dec.value = t.adsr.d; sus.value = t.adsr.s; rel.value = t.adsr.r; }
+        wBs.forEach(x => x.classList.toggle('active', x.dataset.wave === t.wave));
       }
     }
-
-    osc.start();
-    running = true;
-
-    // Presence ping (non-fatal)
-    try { pingPresence(); } catch(e) {}
-
-    nextNoteTime = audioCtx.currentTime;
-    scheduler();
-    drawScope();
-    drawEnvelope();
-
-    toggleBtn.textContent = "STOP";
-
-  } else {
-
-    running = false;
-    toggleBtn.textContent = "START";
-    if (audioCtx) audioCtx.close();
-
-  }
+    osc = audioCtx.createOscillator(); gainNode = audioCtx.createGain(); analyser = audioCtx.createAnalyser();
+    osc.type = document.querySelector('.wave-btn.active').dataset.wave; osc.frequency.value = +f.value;
+    osc.connect(gainNode); gainNode.connect(analyser); analyser.connect(audioCtx.destination);
+    osc.start(); running = true; nextNoteTime = audioCtx.currentTime;
+    scheduler(); drawScope(); drawEnvelope(); tB.textContent = "STOP";
+  } else { running = false; tB.textContent = "START"; audioCtx.close(); }
 };
 
-
-function saveTone(){
-  if(!studentId) return;
-
-  console.log("Saving tone for", studentId);
-
-  db.collection("students").doc(studentId).set({
-    tone:{
-      freq:+freq.value,
-      bpm:+bpm.value,
-      wave:document.querySelector('.wave-btn.active').dataset.wave,
-      adsr:{
-        a:+attack.value,
-        d:+decay.value,
-        s:+sustain.value,
-        r:+release.value
-      }
-    },
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  },{merge:true});
-}
-
-
+function saveTone(){ if(!studentId || !running) return; db.collection("students").doc(studentId).set({ tone:{ freq:+f.value, bpm:+b.value, wave:document.querySelector('.wave-btn.active').dataset.wave, adsr:{a:+att.value, d:+dec.value, s:+sus.value, r:+rel.value} }, updatedAt: firebase.firestore.FieldValue.serverTimestamp() },{merge:true}); }
 </script>
-
-</div>
 </body>
 </html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YO SOY — Glitches Log</title>
+
+<style>
+:root{
+  --bg:#0b0b0b;
+  --fg:#9a9a9a;
+  --accent:#00ff9c;
+  --dim:#444;
+  --warn:#ff6b6b;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.container{
+  max-width:820px;
+  margin:0 auto;
+  padding:48px 24px 80px;
+}
+
+h1,h2,h3{
+  color:var(--accent);
+  font-weight:600;
+  letter-spacing:0.05em;
+}
+
+h1{
+  font-size:22px;
+  margin-bottom:8px;
+}
+
+h2{
+  font-size:16px;
+  margin-top:48px;
+  margin-bottom:12px;
+}
+
+h3{
+  font-size:14px;
+  margin-top:32px;
+  margin-bottom:8px;
+}
+
+p{
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:16px;
+}
+
+ul{
+  margin-left:18px;
+  margin-bottom:16px;
+}
+
+li{
+  margin-bottom:8px;
+}
+
+.glitch{
+  border-left:3px solid var(--warn);
+  padding-left:16px;
+  margin:24px 0;
+}
+
+.status{
+  font-size:12px;
+  color:var(--warn);
+  letter-spacing:0.05em;
+}
+
+code, pre{
+  background:#111;
+  border:1px solid var(--dim);
+  padding:12px;
+  display:block;
+  font-size:13px;
+  overflow-x:auto;
+  margin:16px 0;
+}
+
+.small{
+  font-size:12px;
+  color:var(--dim);
+}
+
+hr{
+  border:none;
+  border-top:1px solid var(--dim);
+  margin:48px 0;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>YO SOY</h1>
+<p class="small">Glitches & Faults Log — v01 (Revised)</p>
+
+<hr>
+
+<h2>Purpose of This Document</h2>
+
+<p>
+This document records known faults and inconsistencies present at the pause point
+of Stage 1 development.
+</p>
+
+<p>
+Glitches are treated as first-class artifacts. They are not immediately fixed,
+but documented, contextualized, and sometimes preserved.
+</p>
+
+<hr>
+
+<h2>Global System Status</h2>
+
+<p class="status">
+GLITCHY, BUT SOMEWHAT WORKING
+</p>
+
+<ul>
+  <li>Presence registration works</li>
+  <li>Firebase writes are confirmed</li>
+  <li>Pulse interface loads</li>
+  <li>Audio engine starts</li>
+</ul>
+
+<p>
+However, internal state propagation is incomplete.
+</p>
+
+<hr>
+
+<h2>Glitch 01 — Database State Is Ignored by Instrument</h2>
+
+<div class="glitch">
+
+<p class="status">STATUS: UNRESOLVED</p>
+<p class="status">CLASS: STATE HYDRATION FAILURE</p>
+
+<h3>Observed Behavior</h3>
+
+<p>
+The questionnaire correctly stores tone data in Firestore, including waveform
+selection.
+</p>
+
+<p>
+When <code>pulse.html</code> loads:
+</p>
+
+<ul>
+  <li>The student document is successfully read</li>
+  <li>The stored <code>tone.wave</code> value exists</li>
+  <li>The oscillator waveform does not update</li>
+  <li>The UI wave selector does not reflect database state</li>
+</ul>
+
+<p>
+Regardless of database value (<code>sine</code>, <code>triangle</code>,
+<code>square</code>, <code>sawtooth</code>), the instrument remains at its
+default waveform.
+</p>
+
+<h3>Expected Behavior</h3>
+
+<p>
+On pulse initialization:
+</p>
+
+<ul>
+  <li>Read <code>students/{id}.tone</code></li>
+  <li>Apply waveform to <code>osc.type</code></li>
+  <li>Update active waveform button</li>
+  <li>Ensure audio + UI share a single source of truth</li>
+</ul>
+
+<h3>Technical Cause</h3>
+
+<ul>
+  <li>Database read occurs inside START handler</li>
+  <li>Waveform assignment from DB is missing or incomplete</li>
+  <li>No explicit state hydration function exists</li>
+  <li>UI state, audio state, and DB state are decoupled</li>
+</ul>
+
+<h3>Conceptual Implication</h3>
+
+<p>
+The system records identity but does not enact it.
+</p>
+
+<ul>
+  <li>The user answers questions</li>
+  <li>The system stores those answers</li>
+  <li>The instrument refuses to obey</li>
+</ul>
+
+<p>
+This produces a strong, unintended metaphor:
+</p>
+
+<ul>
+  <li>Subjectivity is archived</li>
+  <li>Agency is acknowledged symbolically</li>
+  <li>Embodiment is denied</li>
+</ul>
+
+<p>
+This glitch may later be reframed as intentional.
+</p>
+
+</div>
+
+<hr>
+
+<h2>Glitch 02 — User Always Marked as Guest</h2>
+
+<div class="glitch">
+
+<p class="status">STATUS: PARTIALLY UNDERSTOOD</p>
+
+<h3>Observed Behavior</h3>
+
+<p>
+Users are consistently assigned:
+</p>
+
+<pre>
+rosterStatus: "invitado"
+</pre>
+
+<p>
+Even when a matching document exists in <code>courseRoster</code>.
+</p>
+
+<h3>Technical Cause</h3>
+
+<ul>
+  <li>Firestore rules restrict roster reads</li>
+  <li>Roster lookup fails silently</li>
+  <li>System fails open by design</li>
+</ul>
+
+<h3>Conceptual Note</h3>
+
+<p>
+Institutional recognition exists but is inaudible.
+</p>
+
+<p>
+Everyone sounds the same regardless of status.
+</p>
+
+</div>
+
+<hr>
+
+<h2>Questionnaire → Pulse Variable Mapping</h2>
+
+<p>
+The questionnaire does not collect personal data. It encodes symbolic states into
+sound parameters.
+</p>
+
+<h3>Mapping Table</h3>
+
+<ul>
+  <li>
+    <strong>Internal Rhythm</strong><br>
+    Question about internal pace → <code>BPM</code>
+  </li>
+  <li>
+    <strong>Thought Texture</strong><br>
+    Descriptive metaphors → <code>oscillator waveform</code>
+  </li>
+  <li>
+    <strong>Emotional Energy</strong><br>
+    Low / Medium / High → <code>frequency (Hz)</code>
+  </li>
+</ul>
+
+<h3>Intended Flow</h3>
+
+<pre>
+Questionnaire
+   ↓
+Symbolic Answer
+   ↓
+Firestore (tone object)
+   ↓
+Pulse State Hydration
+   ↓
+Audio + Visual Output
+</pre>
+
+<h3>Actual Flow (Current)</h3>
+
+<pre>
+Questionnaire
+   ↓
+Firestore
+   ↓
+[BREAK]
+   ↓
+Pulse Defaults
+</pre>
+
+<p>
+This discrepancy is intentional to document and has not yet been resolved.
+</p>
+
+<hr>
+
+<h2>Known Non-Issues</h2>
+
+<ul>
+  <li>Console warnings during roster checks</li>
+  <li>Silent Firebase read failures</li>
+  <li>Visual/audio representational mismatch</li>
+</ul>
+
+<p>
+These do not block the experience.
+</p>
+
+<hr>
+
+<h2>Current Decision</h2>
+
+<p>
+Stage 1 development is paused with the following stance:
+</p>
+
+<ul>
+  <li>System is operational</li>
+  <li>Glitches are visible and documented</li>
+  <li>No forced refactor before classroom use</li>
+</ul>
+
+<hr>
+
+<p class="small">
+YO SOY — Glitches Log v01 (Revised)<br>
+Stage 1 — Identity recorded, agency unresolved.
+</p>
+
+</div>
+</body>
+</html>
