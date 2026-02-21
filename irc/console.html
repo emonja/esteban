@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PORTFOLIO CONTROL — ESTEBAN DE LA MONJA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0f0ed; --text: #121212; --pink: #ff007f; --copper: #FFB300; --patina: #40E0D0;
+        }
+        body { 
+            background-color: var(--bg); color: var(--text); 
+            font-family: 'Archivo Black', sans-serif; padding: 40px; 
+            text-transform: uppercase;
+        }
+        .panel { max-width: 600px; margin: 0 auto; border: 4px solid var(--text); padding: 30px; }
+        h1 { font-size: 1.2rem; border-bottom: 4px solid var(--text); padding-bottom: 10px; margin-bottom: 30px; }
+        
+        .stat-group { margin-bottom: 40px; }
+        .label { font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px; }
+        .value { font-size: 2rem; margin-bottom: 10px; }
+
+        .btn {
+            width: 100%; padding: 20px; font-family: inherit; font-size: 1rem;
+            cursor: pointer; border: none; margin-bottom: 15px; transition: 0.3s;
+        }
+        #toggle-btn { background: var(--text); color: var(--bg); }
+        #toggle-btn.off { background: var(--pink); color: #fff; }
+        #purge-btn { background: transparent; border: 2px solid var(--text); color: var(--text); }
+        #purge-btn:hover { background: var(--pink); color: #fff; border-color: var(--pink); }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h1>Portfolio System Control</h1>
+        
+        <div class="stat-group">
+            <div class="label">Channel Status</div>
+            <div class="value" id="status-val">Checking...</div>
+            <button class="btn" id="toggle-btn">Toggle Channel Access</button>
+        </div>
+
+        <div class="stat-group">
+            <div class="label">Active Transmissions</div>
+            <div id="count-val" class="value" style="color: var(--patina);">0</div>
+        </div>
+
+        <div style="margin-top: 60px;">
+            <div class="label">Maintenance</div>
+            <button class="btn" id="purge-btn">Purge Portfolio Log</button>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDXZbUQ81jxiGgH89gXdoH7pf2mSxp_rN0",
+        databaseURL: "https://technodrone-ce06d-default-rtdb.firebaseio.com",
+        projectId: "technodrone-ce06d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const statusRef = ref(db, "portfolio_status");
+    const chatRef = ref(db, "portfolio_chat");
+
+    let isActive = true;
+
+    // Listen to Status
+    onValue(statusRef, (snap) => {
+        isActive = snap.val()?.active ?? true;
+        const display = document.getElementById('status-val');
+        const btn = document.getElementById('toggle-btn');
+        
+        display.innerText = isActive ? "Online / Open" : "Offline / Closed";
+        display.style.color = isActive ? "var(--patina)" : "var(--pink)";
+        btn.innerText = isActive ? "Close Channel" : "Open Channel";
+        btn.className = isActive ? "btn" : "btn off";
+    });
+
+    // Listen to Counts
+    onValue(chatRef, (snap) => {
+        document.getElementById('count-val').innerText = snap.exists() ? Object.keys(snap.val()).length : 0;
+    });
+
+    // Actions
+    document.getElementById('toggle-btn').addEventListener('click', () => {
+        update(statusRef, { active: !isActive });
+    });
+
+    document.getElementById('purge-btn').addEventListener('click', () => {
+        if(confirm("Purge all transmissions in the Portfolio node?")) {
+            remove(chatRef);
+        }
+    });
+</script>
+</body>
+</html>
