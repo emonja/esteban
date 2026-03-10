@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<title>CONTROL PANEL</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+padding:40px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+td,th{
+border:1px solid #444;
+padding:10px;
+text-align:left;
+}
+
+button{
+padding:6px 12px;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<h1>EXPEDIENTE CONTROL</h1>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Nombre</th>
+<th>Email</th>
+<th>Edad</th>
+<th>Sexo</th>
+<th>Lugar</th>
+<th>Ocupación</th>
+<th>Horario</th>
+<th>Eliminar</th>
+</tr>
+
+</thead>
+
+<tbody id="tabla"></tbody>
+
+</table>
+
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyAlLmIKEa5448MbZRtBOhBYsaDXGtts8rY",
+authDomain:"yo-soy-f0351.firebaseapp.com",
+databaseURL:"https://yo-soy-f0351-default-rtdb.firebaseio.com",
+projectId:"yo-soy-f0351",
+storageBucket:"yo-soy-f0351.firebasestorage.app",
+messagingSenderId:"862853301934",
+appId:"1:862853301934:web:b8753f6bd04bb14ec50f3f"
+}
+
+const app=initializeApp(firebaseConfig)
+const db=getDatabase(app)
+
+const tabla=document.getElementById("tabla")
+
+onValue(ref(db,"expedientes"),snapshot=>{
+
+tabla.innerHTML=""
+
+const data=snapshot.val()
+
+if(!data) return
+
+Object.entries(data).forEach(([id,user])=>{
+
+let row=document.createElement("tr")
+
+row.innerHTML=`
+
+<td>${user.nombre}</td>
+<td>${user.email}</td>
+<td>${user.edad}</td>
+<td>${user.sexo}</td>
+<td>${user.lugar}</td>
+<td>${user.ocupacion}</td>
+<td>${user.horario}</td>
+<td><button onclick="eliminar('${id}')">Eliminar</button></td>
+
+`
+
+tabla.appendChild(row)
+
+})
+
+})
+
+window.eliminar=function(id){
+
+if(confirm("Eliminar registro?")){
+remove(ref(db,"expedientes/"+id))
+}
+
+}
+
+</script>
+
+</body>
+</html>
