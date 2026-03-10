@@ -1,0 +1,426 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<title>EXPEDIENTE</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+
+/* ---------------------------
+GENERAL
+--------------------------- */
+
+body{
+margin:0;
+background:#000;
+color:#f5d34a;
+font-family:'Space Mono', monospace;
+overflow:hidden;
+}
+
+.container{
+position:relative;
+z-index:2;
+max-width:850px;
+margin:auto;
+padding:40px;
+text-align:center;
+}
+
+/* ---------------------------
+TITLE
+--------------------------- */
+
+h1{
+font-family:'Anton', sans-serif;
+font-size:72px;
+letter-spacing:3px;
+margin-bottom:0;
+}
+
+h2{
+margin-top:5px;
+margin-bottom:30px;
+font-weight:normal;
+}
+
+/* ---------------------------
+FORM
+--------------------------- */
+
+input, select{
+width:90%;
+max-width:420px;
+padding:12px;
+margin:8px;
+border:none;
+font-size:14px;
+}
+
+button{
+margin-top:25px;
+padding:14px 36px;
+background:#f5d34a;
+border:none;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#fff;
+}
+
+/* ---------------------------
+TIME SLOTS
+--------------------------- */
+
+.slots{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+max-width:500px;
+margin:20px auto;
+}
+
+.slot{
+background:#111;
+padding:10px;
+cursor:pointer;
+}
+
+.slot.selected{
+background:#f5d34a;
+color:#000;
+}
+
+.slot.taken{
+filter:blur(3px);
+opacity:.3;
+pointer-events:none;
+}
+
+/* ---------------------------
+SPOTLIGHT BACKGROUND
+--------------------------- */
+
+#spotlight{
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+pointer-events:none;
+z-index:0;
+filter:blur(8px);
+mix-blend-mode:screen;
+}
+
+.small{
+font-size:12px;
+opacity:.7;
+}
+
+</style>
+
+</head>
+
+
+
+<body>
+
+<div id="spotlight"></div>
+
+<div class="container">
+
+<h1>EXPEDIENTE</h1>
+<h2>TE ESTÁN ESPERANDO</h2>
+
+<form id="form">
+
+<input id="nombre" placeholder="Nombre completo" required>
+
+<input id="edad" type="number" placeholder="Edad" required>
+
+<input id="nacimiento" type="date" required>
+
+<select id="sexo" required>
+<option value="">Sexo</option>
+<option>Masculino</option>
+<option>Femenino</option>
+<option>Otro</option>
+</select>
+
+<input id="lugar" placeholder="Lugar de nacimiento" required>
+
+<input id="ocupacion" placeholder="Carrera u ocupación" required>
+
+<input id="email" type="email" placeholder="Correo electrónico" required>
+
+<h3>Seleccione horario</h3>
+
+<div class="slots" id="slots"></div>
+
+<button type="submit">ENVIAR EXPEDIENTE</button>
+
+<p class="small">
+Después se abrirá WhatsApp para enviar la información y selfie.
+</p>
+
+</form>
+
+</div>
+
+
+
+<script type="module">
+
+/* ---------------------------
+FIREBASE
+--------------------------- */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, push, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyAlLmIKEa5448MbZRtBOhBYsaDXGtts8rY",
+authDomain: "yo-soy-f0351.firebaseapp.com",
+databaseURL: "https://yo-soy-f0351-default-rtdb.firebaseio.com",
+projectId: "yo-soy-f0351",
+storageBucket: "yo-soy-f0351.firebasestorage.app",
+messagingSenderId: "862853301934",
+appId: "1:862853301934:web:b8753f6bd04bb14ec50f3f"
+
+}
+
+const app = initializeApp(firebaseConfig)
+const db = getDatabase(app)
+
+
+
+/* ---------------------------
+TIME SLOT SYSTEM
+--------------------------- */
+
+const slotsContainer=document.getElementById("slots")
+let selectedSlot=null
+
+function generateSlots(){
+
+let start=9*60
+let end=13*60
+
+for(let t=start;t<=end;t+=15){
+
+let h=Math.floor(t/60)
+let m=t%60
+
+let label=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`
+
+let div=document.createElement("div")
+div.className="slot"
+div.innerText=label
+
+div.onclick=()=>{
+
+document.querySelectorAll(".slot").forEach(s=>s.classList.remove("selected"))
+
+div.classList.add("selected")
+selectedSlot=label
+
+}
+
+slotsContainer.appendChild(div)
+
+}
+
+}
+
+
+
+async function loadTakenSlots(){
+
+const snapshot=await get(child(ref(db),"expedientes"))
+
+if(snapshot.exists()){
+
+const data=snapshot.val()
+
+let taken=[]
+
+Object.values(data).forEach(e=>{
+
+taken.push(e.horario)
+
+})
+
+document.querySelectorAll(".slot").forEach(s=>{
+
+if(taken.includes(s.innerText)){
+
+s.classList.add("taken")
+
+}
+
+})
+
+}
+
+}
+
+generateSlots()
+setTimeout(loadTakenSlots,700)
+
+
+
+/* ---------------------------
+FORM SUBMIT
+--------------------------- */
+
+document.getElementById("form").addEventListener("submit",async function(e){
+
+e.preventDefault()
+
+let nombre=document.getElementById("nombre").value
+let edad=document.getElementById("edad").value
+let nacimiento=document.getElementById("nacimiento").value
+let sexo=document.getElementById("sexo").value
+let lugar=document.getElementById("lugar").value
+let ocupacion=document.getElementById("ocupacion").value
+let email=document.getElementById("email").value
+
+if(!selectedSlot){
+
+alert("Seleccione un horario")
+return
+
+}
+
+let data={
+
+nombre,
+edad,
+nacimiento,
+sexo,
+lugar,
+ocupacion,
+email,
+horario:selectedSlot,
+timestamp:Date.now()
+
+}
+
+await push(ref(db,"expedientes"),data)
+
+
+
+/* ---------------------------
+WHATSAPP MESSAGE
+--------------------------- */
+
+let message=`EXPEDIENTE REGISTRADO
+
+Nombre: ${nombre}
+Edad: ${edad}
+Nacimiento: ${nacimiento}
+Sexo: ${sexo}
+Lugar: ${lugar}
+Ocupación: ${ocupacion}
+Email: ${email}
+Horario: ${selectedSlot}
+
+Adjunto selfie para completar expediente.`
+
+let url=`https://wa.me/5214493831674?text=${encodeURIComponent(message)}`
+
+window.open(url,"_blank")
+
+alert("Registro guardado. Continúe en WhatsApp.")
+
+})
+
+
+
+/* ---------------------------
+SPOTLIGHT ANIMATION
+--------------------------- */
+
+const light=document.getElementById("spotlight")
+
+let x=window.innerWidth/2
+let y=window.innerHeight/3
+let vx=0
+let vy=0
+
+function randomMove(){
+
+vx=(Math.random()-0.5)*3
+vy=(Math.random()-0.5)*2
+
+}
+
+setInterval(randomMove,2000)
+
+
+
+function animate(){
+
+x+=vx
+y+=vy
+
+if(x<0||x>window.innerWidth)vx*=-1
+if(y<0||y>window.innerHeight)vy*=-1
+
+light.style.background=`radial-gradient(circle at ${x}px ${y}px,
+rgba(255,230,140,.9) 0%,
+rgba(255,200,80,.5) 20%,
+rgba(255,160,40,.2) 40%,
+rgba(0,0,0,0) 65%)`
+
+requestAnimationFrame(animate)
+
+}
+
+animate()
+
+
+
+/* ---------------------------
+FLICKER
+--------------------------- */
+
+function flicker(){
+
+let intensity=Math.random()*0.4+0.6
+light.style.opacity=intensity
+
+setTimeout(flicker,Math.random()*250+80)
+
+}
+
+flicker()
+
+
+
+/* ---------------------------
+MOUSE REACTION
+--------------------------- */
+
+document.addEventListener("mousemove",e=>{
+
+x+=(e.clientX-x)*0.05
+y+=(e.clientY-y)*0.05
+
+})
+
+</script>
+
+</body>
+
+</html>
+```
